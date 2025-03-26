@@ -6,12 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useCart } from "@/contexts/CartContext";
+import { useWishlist } from "@/contexts/WishlistContext";
 
 const NavBar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const isMobile = useIsMobile();
-  const { totalItems } = useCart(); // Get total items from cart context
+  const { totalItems } = useCart();
+  const { totalItems: wishlistItems } = useWishlist();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -100,8 +102,13 @@ const NavBar = () => {
             )}
 
             <Link to="/wishlist">
-              <Button variant="ghost" size="icon" className="text-foreground hover:text-gold">
+              <Button variant="ghost" size="icon" className="relative text-foreground hover:text-gold">
                 <Heart className="h-5 w-5" />
+                {wishlistItems > 0 && (
+                  <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] text-white">
+                    {wishlistItems}
+                  </span>
+                )}
               </Button>
             </Link>
 
@@ -192,6 +199,15 @@ const NavBar = () => {
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     Contact
+                  </Link>
+                </li>
+                <li>
+                  <Link 
+                    to="/wishlist" 
+                    className="block text-foreground hover:text-gold transition-colors"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Wishlist
                   </Link>
                 </li>
               </ul>
