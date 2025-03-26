@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import PageLayout from "@/components/layout/PageLayout";
 import { Button } from "@/components/ui/button";
@@ -9,6 +8,7 @@ import { Slider } from "@/components/ui/slider";
 import { ShoppingCart, Star, Heart, Filter, X, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
+import { useCart } from "@/contexts/CartContext";
 
 // Product type
 interface Product {
@@ -174,6 +174,19 @@ const products: Product[] = [
 
 // Product Card Component
 const ProductCard = ({ product }: { product: Product }) => {
+  const { addItem } = useCart();
+
+  const handleAddToCart = () => {
+    addItem({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      quantity: 1,
+      category: product.category
+    });
+  };
+
   return (
     <div className="luxury-product-card group">
       {/* Product Badges */}
@@ -246,7 +259,10 @@ const ProductCard = ({ product }: { product: Product }) => {
       
       {/* Quick Add - Appears on Hover */}
       <div className="absolute inset-x-0 bottom-0 translate-y-full bg-background/95 backdrop-blur-sm p-4 shadow-md transition-transform duration-300 group-hover:translate-y-0 border-t border-border/50">
-        <Button className="w-full rounded-md bg-primary text-primary-foreground hover:bg-primary/90">
+        <Button 
+          onClick={handleAddToCart}
+          className="w-full rounded-md bg-primary text-primary-foreground hover:bg-primary/90"
+        >
           Add to Cart <ShoppingCart size={16} className="ml-2" />
         </Button>
       </div>
