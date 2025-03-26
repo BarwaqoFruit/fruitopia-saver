@@ -20,8 +20,8 @@ export default {
 		},
 		extend: {
 			fontFamily: {
-				sans: ['Inter', 'sans-serif'],
-				serif: ['Playfair Display', 'serif'],
+				sans: ['Lato', 'Helvetica Neue', 'sans-serif'],
+				serif: ['Playfair Display', 'Didot', 'serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',
@@ -56,6 +56,11 @@ export default {
 				card: {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
+				},
+				gold: {
+					light: 'hsl(var(--gold-light))',
+					DEFAULT: 'hsl(var(--gold))',
+					dark: 'hsl(var(--gold-dark))',
 				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
@@ -109,6 +114,14 @@ export default {
 				'float': {
 					'0%, 100%': { transform: 'translateY(0)' },
 					'50%': { transform: 'translateY(-10px)' }
+				},
+				'shimmer': {
+					'0%': { backgroundPosition: '-200% 0' },
+					'100%': { backgroundPosition: '200% 0' }
+				},
+				'pulse-gold': {
+					'0%, 100%': { opacity: '1' },
+					'50%': { opacity: '0.8' }
 				}
 			},
 			animation: {
@@ -120,7 +133,14 @@ export default {
 				'scale-out': 'scale-out 0.3s ease-out',
 				'slide-in': 'slide-in 0.3s ease-out',
 				'slide-out': 'slide-out 0.3s ease-out',
-				'float': 'float 6s ease-in-out infinite'
+				'float': 'float 6s ease-in-out infinite',
+				'shimmer': 'shimmer 3s linear infinite',
+				'pulse-gold': 'pulse-gold 2s ease-in-out infinite'
+			},
+			backgroundImage: {
+				'marble-light': "url('https://images.unsplash.com/photo-1517329782449-810562a4ec2f?q=80&w=2000&auto=format&fit=crop')",
+				'marble-dark': "url('https://images.unsplash.com/photo-1541123437800-1bb1317badc2?q=80&w=2000&auto=format&fit=crop')",
+				'gradient-gold': 'linear-gradient(to right, hsl(var(--gold-light)), hsl(var(--gold)), hsl(var(--gold-dark)))',
 			}
 		}
 	},

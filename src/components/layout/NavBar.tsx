@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Search, ShoppingCart, User, Menu, X } from "lucide-react";
+import { Search, ShoppingCart, User, Menu, X, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -24,7 +24,7 @@ const NavBar = () => {
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
-          ? "glass py-2 shadow-md"
+          ? "bg-background/90 backdrop-blur-md py-2 shadow-md"
           : "bg-transparent py-4"
       }`}
     >
@@ -34,7 +34,7 @@ const NavBar = () => {
             to="/" 
             className="flex items-center font-serif text-2xl font-medium transition-all duration-300"
           >
-            <span className="text-primary mr-1">Barwaqo</span>
+            <span className="text-gold mr-1">Barwaqo</span>
             <span>Fruit</span>
           </Link>
 
@@ -44,7 +44,7 @@ const NavBar = () => {
                 <li>
                   <Link 
                     to="/shop" 
-                    className="text-foreground hover:text-primary transition-colors"
+                    className="text-foreground hover:text-gold transition-colors"
                   >
                     Shop
                   </Link>
@@ -52,23 +52,15 @@ const NavBar = () => {
                 <li>
                   <Link 
                     to="/seasonal" 
-                    className="text-foreground hover:text-primary transition-colors"
+                    className="text-foreground hover:text-gold transition-colors"
                   >
                     Seasonal
                   </Link>
                 </li>
                 <li>
                   <Link 
-                    to="/subscription" 
-                    className="text-foreground hover:text-primary transition-colors"
-                  >
-                    Subscription
-                  </Link>
-                </li>
-                <li>
-                  <Link 
                     to="/fruit-finder" 
-                    className="text-foreground hover:text-primary transition-colors"
+                    className="text-foreground hover:text-gold transition-colors"
                   >
                     Fruit Finder
                   </Link>
@@ -76,9 +68,17 @@ const NavBar = () => {
                 <li>
                   <Link 
                     to="/about" 
-                    className="text-foreground hover:text-primary transition-colors"
+                    className="text-foreground hover:text-gold transition-colors"
                   >
                     About
+                  </Link>
+                </li>
+                <li>
+                  <Link 
+                    to="/contact" 
+                    className="text-foreground hover:text-gold transition-colors"
+                  >
+                    Contact
                   </Link>
                 </li>
               </ul>
@@ -91,23 +91,29 @@ const NavBar = () => {
                 <Input
                   type="text"
                   placeholder="Search fruits..."
-                  className="pl-8 h-9 transition-all duration-300 focus:w-64"
+                  className="pl-8 h-9 transition-all duration-300 focus:w-64 focus:border-gold border-gold/30 bg-transparent"
                 />
                 <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               </div>
             )}
 
+            <Link to="/wishlist">
+              <Button variant="ghost" size="icon" className="text-foreground hover:text-gold">
+                <Heart className="h-5 w-5" />
+              </Button>
+            </Link>
+
             <Link to="/cart">
-              <Button variant="ghost" size="icon" className="relative">
+              <Button variant="ghost" size="icon" className="relative text-foreground hover:text-gold">
                 <ShoppingCart className="h-5 w-5" />
-                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] text-white">
+                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-gold text-[10px] text-white">
                   0
                 </span>
               </Button>
             </Link>
 
             <Link to="/account">
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" className="text-foreground hover:text-gold">
                 <User className="h-5 w-5" />
               </Button>
             </Link>
@@ -117,6 +123,7 @@ const NavBar = () => {
                 variant="ghost" 
                 size="icon" 
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="text-foreground hover:text-gold"
               >
                 {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
               </Button>
@@ -126,12 +133,12 @@ const NavBar = () => {
 
         {/* Mobile menu */}
         {isMobile && mobileMenuOpen && (
-          <div className="mt-4 animate-fade-in">
+          <div className="mt-4 animate-fade-in py-4 border-t border-border/50">
             <div className="relative mb-4">
               <Input
                 type="text"
                 placeholder="Search fruits..."
-                className="pl-8 w-full"
+                className="pl-8 w-full border-gold/30 bg-transparent"
               />
               <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             </div>
@@ -141,7 +148,7 @@ const NavBar = () => {
                 <li>
                   <Link 
                     to="/shop" 
-                    className="block text-foreground hover:text-primary transition-colors"
+                    className="block text-foreground hover:text-gold transition-colors"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     Shop
@@ -150,7 +157,7 @@ const NavBar = () => {
                 <li>
                   <Link 
                     to="/seasonal" 
-                    className="block text-foreground hover:text-primary transition-colors"
+                    className="block text-foreground hover:text-gold transition-colors"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     Seasonal
@@ -158,17 +165,8 @@ const NavBar = () => {
                 </li>
                 <li>
                   <Link 
-                    to="/subscription" 
-                    className="block text-foreground hover:text-primary transition-colors"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    Subscription
-                  </Link>
-                </li>
-                <li>
-                  <Link 
                     to="/fruit-finder" 
-                    className="block text-foreground hover:text-primary transition-colors"
+                    className="block text-foreground hover:text-gold transition-colors"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     Fruit Finder
@@ -177,10 +175,19 @@ const NavBar = () => {
                 <li>
                   <Link 
                     to="/about" 
-                    className="block text-foreground hover:text-primary transition-colors"
+                    className="block text-foreground hover:text-gold transition-colors"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     About
+                  </Link>
+                </li>
+                <li>
+                  <Link 
+                    to="/contact" 
+                    className="block text-foreground hover:text-gold transition-colors"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Contact
                   </Link>
                 </li>
               </ul>
