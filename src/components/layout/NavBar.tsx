@@ -5,11 +5,13 @@ import { Search, ShoppingCart, User, Menu, X, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useCart } from "@/contexts/CartContext";
 
 const NavBar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const isMobile = useIsMobile();
+  const { totalItems } = useCart(); // Get total items from cart context
 
   useEffect(() => {
     const handleScroll = () => {
@@ -106,9 +108,11 @@ const NavBar = () => {
             <Link to="/cart">
               <Button variant="ghost" size="icon" className="relative text-foreground hover:text-gold">
                 <ShoppingCart className="h-5 w-5" />
-                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-gold text-[10px] text-white">
-                  0
-                </span>
+                {totalItems > 0 && (
+                  <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-gold text-[10px] text-white">
+                    {totalItems}
+                  </span>
+                )}
               </Button>
             </Link>
 
