@@ -1,11 +1,19 @@
 
 import React from "react";
 import { Link } from "react-router-dom";
-import { CheckCircle, ShoppingBag, ArrowRight } from "lucide-react";
+import { CheckCircle, ShoppingBag, ArrowRight, MapPin, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import PageLayout from "@/components/layout/PageLayout";
 
 const CheckoutSuccess = () => {
+  // Generate a unique Somali-style order reference
+  const generateOrderReference = () => {
+    const prefix = "BRW";
+    const timestamp = new Date().getTime().toString().slice(-6);
+    const random = Math.floor(1000 + Math.random() * 9000);
+    return `${prefix}-${timestamp}-${random}`;
+  };
+
   return (
     <PageLayout>
       <div className="container mx-auto px-4 py-16 mt-8">
@@ -14,16 +22,38 @@ const CheckoutSuccess = () => {
             <CheckCircle className="h-12 w-12 text-primary" />
           </div>
           
-          <h1 className="font-serif text-3xl font-medium mb-4">Order Confirmed!</h1>
+          <h1 className="font-serif text-3xl font-medium mb-4">Mahadsanid!</h1>
+          <h2 className="font-serif text-xl font-medium mb-4">Order Confirmed!</h2>
           
           <p className="text-muted-foreground mb-8">
             Thank you for your purchase. We've received your order and will begin
-            processing it right away. You'll receive a confirmation email shortly.
+            processing it right away. You'll receive a confirmation SMS shortly.
           </p>
           
           <div className="bg-secondary p-6 rounded-lg mb-8">
             <h2 className="font-medium mb-2">Order Reference</h2>
-            <p className="text-gold font-mono text-lg">ORD-{Math.floor(100000 + Math.random() * 900000)}</p>
+            <p className="text-gold font-mono text-lg">{generateOrderReference()}</p>
+          </div>
+          
+          <div className="bg-primary/5 p-6 rounded-lg mb-8 text-left">
+            <h2 className="font-medium mb-3 text-center">Delivery Information</h2>
+            <div className="space-y-2">
+              <div className="flex items-start">
+                <MapPin className="h-5 w-5 mr-2 mt-0.5 text-primary" />
+                <div>
+                  <p className="font-medium">Your order will arrive within:</p>
+                  <p className="text-muted-foreground">1-2 business days for Mogadishu</p>
+                  <p className="text-muted-foreground">2-4 business days for other regions</p>
+                </div>
+              </div>
+              <div className="flex items-start">
+                <Phone className="h-5 w-5 mr-2 mt-0.5 text-primary" />
+                <div>
+                  <p className="font-medium">Need help with your order?</p>
+                  <p className="text-muted-foreground">Call us at 252-61-BARWAQO (252-61-227-9276)</p>
+                </div>
+              </div>
+            </div>
           </div>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">

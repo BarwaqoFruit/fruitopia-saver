@@ -12,7 +12,9 @@ import {
   Truck, 
   Clock, 
   ShieldCheck,
-  CheckCircle2 
+  CheckCircle2,
+  Phone,
+  Banknote
 } from "lucide-react";
 
 import PageLayout from "@/components/layout/PageLayout";
@@ -57,6 +59,7 @@ const formSchema = z.object({
   country: z.string().min(2, { message: "Please select a country." }),
   deliveryMethod: z.string().min(1, { message: "Please select a delivery method." }),
   paymentMethod: z.string().min(1, { message: "Please select a payment method." }),
+  waafiNumber: z.string().optional(),
   cardNumber: z.string().optional(),
   cardName: z.string().optional(),
   cardExpiry: z.string().optional(),
@@ -70,8 +73,8 @@ const Checkout = () => {
   const [step, setStep] = useState(1);
   const navigate = useNavigate();
 
-  const deliveryFee = totalPrice > 50 ? 0 : 10;
-  const tax = totalPrice * 0.07;
+  const deliveryFee = totalPrice > 50 ? 0 : 5;
+  const tax = totalPrice * 0.05;
   const orderTotal = totalPrice + deliveryFee + tax;
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -85,9 +88,10 @@ const Checkout = () => {
       city: "",
       state: "",
       zipCode: "",
-      country: "USA",
+      country: "Somalia",
       deliveryMethod: "standard",
-      paymentMethod: "card",
+      paymentMethod: "waafi",
+      waafiNumber: "",
       cardNumber: "",
       cardName: "",
       cardExpiry: "",
@@ -191,7 +195,7 @@ const Checkout = () => {
                               <FormItem>
                                 <FormLabel>First Name</FormLabel>
                                 <FormControl>
-                                  <Input placeholder="John" {...field} />
+                                  <Input placeholder="Abdi" {...field} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -204,7 +208,7 @@ const Checkout = () => {
                               <FormItem>
                                 <FormLabel>Last Name</FormLabel>
                                 <FormControl>
-                                  <Input placeholder="Doe" {...field} />
+                                  <Input placeholder="Hassan" {...field} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -219,7 +223,7 @@ const Checkout = () => {
                               <FormItem>
                                 <FormLabel>Email</FormLabel>
                                 <FormControl>
-                                  <Input type="email" placeholder="john.doe@example.com" {...field} />
+                                  <Input type="email" placeholder="abdi.hassan@example.com" {...field} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -232,7 +236,7 @@ const Checkout = () => {
                               <FormItem>
                                 <FormLabel>Phone Number</FormLabel>
                                 <FormControl>
-                                  <Input placeholder="(123) 456-7890" {...field} />
+                                  <Input placeholder="252 61 1234567" {...field} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -259,7 +263,7 @@ const Checkout = () => {
                             <FormItem>
                               <FormLabel>Street Address</FormLabel>
                               <FormControl>
-                                <Input placeholder="123 Main St" {...field} />
+                                <Input placeholder="Makka Al-Mukarama Road" {...field} />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -273,7 +277,7 @@ const Checkout = () => {
                               <FormItem>
                                 <FormLabel>City</FormLabel>
                                 <FormControl>
-                                  <Input placeholder="San Francisco" {...field} />
+                                  <Input placeholder="Mogadishu" {...field} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -284,19 +288,20 @@ const Checkout = () => {
                             name="state"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>State</FormLabel>
+                                <FormLabel>Region</FormLabel>
                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                   <FormControl>
                                     <SelectTrigger>
-                                      <SelectValue placeholder="Select state" />
+                                      <SelectValue placeholder="Select region" />
                                     </SelectTrigger>
                                   </FormControl>
                                   <SelectContent>
-                                    <SelectItem value="CA">California</SelectItem>
-                                    <SelectItem value="NY">New York</SelectItem>
-                                    <SelectItem value="TX">Texas</SelectItem>
-                                    <SelectItem value="FL">Florida</SelectItem>
-                                    <SelectItem value="IL">Illinois</SelectItem>
+                                    <SelectItem value="Banadir">Banadir</SelectItem>
+                                    <SelectItem value="Puntland">Puntland</SelectItem>
+                                    <SelectItem value="Jubaland">Jubaland</SelectItem>
+                                    <SelectItem value="Southwest">Southwest</SelectItem>
+                                    <SelectItem value="Hirshabelle">Hirshabelle</SelectItem>
+                                    <SelectItem value="Galmudug">Galmudug</SelectItem>
                                   </SelectContent>
                                 </Select>
                                 <FormMessage />
@@ -310,9 +315,9 @@ const Checkout = () => {
                             name="zipCode"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>ZIP Code</FormLabel>
+                                <FormLabel>Postal Code</FormLabel>
                                 <FormControl>
-                                  <Input placeholder="94103" {...field} />
+                                  <Input placeholder="BN-1000" {...field} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -331,10 +336,10 @@ const Checkout = () => {
                                     </SelectTrigger>
                                   </FormControl>
                                   <SelectContent>
-                                    <SelectItem value="USA">United States</SelectItem>
-                                    <SelectItem value="CAN">Canada</SelectItem>
-                                    <SelectItem value="MEX">Mexico</SelectItem>
-                                    <SelectItem value="GBR">United Kingdom</SelectItem>
+                                    <SelectItem value="Somalia">Somalia</SelectItem>
+                                    <SelectItem value="Kenya">Kenya</SelectItem>
+                                    <SelectItem value="Ethiopia">Ethiopia</SelectItem>
+                                    <SelectItem value="Djibouti">Djibouti</SelectItem>
                                   </SelectContent>
                                 </Select>
                                 <FormMessage />
@@ -376,11 +381,11 @@ const Checkout = () => {
                                 </div>
                                 <div className="flex-1">
                                   <div className="flex justify-between">
-                                    <h4 className="font-medium">Standard Shipping</h4>
-                                    <p className="font-medium">{totalPrice > 50 ? 'Free' : '$10.00'}</p>
+                                    <h4 className="font-medium">Standard Delivery</h4>
+                                    <p className="font-medium">{totalPrice > 50 ? 'Free' : '$5.00'}</p>
                                   </div>
                                   <div className="flex items-center mt-1 text-sm text-muted-foreground">
-                                    <Clock className="h-4 w-4 mr-1" /> Delivery in 3-5 business days
+                                    <Clock className="h-4 w-4 mr-1" /> Delivery in 1-2 days in Mogadishu, 2-4 days elsewhere
                                   </div>
                                   {totalPrice > 50 && (
                                     <p className="text-sm text-primary mt-1">Free shipping on orders over $50</p>
@@ -395,11 +400,11 @@ const Checkout = () => {
                                 </div>
                                 <div className="flex-1">
                                   <div className="flex justify-between">
-                                    <h4 className="font-medium">Express Shipping</h4>
-                                    <p className="font-medium">$15.00</p>
+                                    <h4 className="font-medium">Express Delivery</h4>
+                                    <p className="font-medium">$10.00</p>
                                   </div>
                                   <div className="flex items-center mt-1 text-sm text-muted-foreground">
-                                    <Clock className="h-4 w-4 mr-1" /> Delivery in 1-2 business days
+                                    <Clock className="h-4 w-4 mr-1" /> Same-day delivery in Mogadishu, next day elsewhere
                                   </div>
                                 </div>
                               </div>
@@ -455,6 +460,50 @@ const Checkout = () => {
                           name="paymentMethod"
                           render={({ field }) => (
                             <FormItem className="space-y-4">
+                              <div className={`p-4 border rounded-lg flex items-start space-x-4 cursor-pointer transition-all ${field.value === 'waafi' ? 'border-primary bg-primary/5' : 'border-border'}`}
+                                onClick={() => form.setValue('paymentMethod', 'waafi')}>
+                                <div className={`flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center ${field.value === 'waafi' ? 'border-primary' : 'border-muted-foreground'}`}>
+                                  {field.value === 'waafi' && <div className="w-2.5 h-2.5 rounded-full bg-primary"></div>}
+                                </div>
+                                <div className="flex-1">
+                                  <h4 className="font-medium">Waafi Pay</h4>
+                                  <div className="flex items-center mt-1 text-sm text-muted-foreground">
+                                    <Phone className="h-4 w-4 mr-1" /> Pay using your Waafi mobile money account
+                                  </div>
+                                  
+                                  {field.value === 'waafi' && (
+                                    <div className="mt-4 space-y-4">
+                                      <FormField
+                                        control={form.control}
+                                        name="waafiNumber"
+                                        render={({ field }) => (
+                                          <FormItem>
+                                            <FormLabel>Waafi Number</FormLabel>
+                                            <FormControl>
+                                              <Input placeholder="252 61 1234567" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                          </FormItem>
+                                        )}
+                                      />
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                              
+                              <div className={`p-4 border rounded-lg flex items-start space-x-4 cursor-pointer transition-all ${field.value === 'cash' ? 'border-primary bg-primary/5' : 'border-border'}`}
+                                onClick={() => form.setValue('paymentMethod', 'cash')}>
+                                <div className={`flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center ${field.value === 'cash' ? 'border-primary' : 'border-muted-foreground'}`}>
+                                  {field.value === 'cash' && <div className="w-2.5 h-2.5 rounded-full bg-primary"></div>}
+                                </div>
+                                <div className="flex-1">
+                                  <h4 className="font-medium">Cash on Delivery</h4>
+                                  <div className="flex items-center mt-1 text-sm text-muted-foreground">
+                                    <Banknote className="h-4 w-4 mr-1" /> Pay in cash when your order is delivered
+                                  </div>
+                                </div>
+                              </div>
+                              
                               <div className={`p-4 border rounded-lg flex items-start space-x-4 cursor-pointer transition-all ${field.value === 'card' ? 'border-primary bg-primary/5' : 'border-border'}`}
                                 onClick={() => form.setValue('paymentMethod', 'card')}>
                                 <div className={`flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center ${field.value === 'card' ? 'border-primary' : 'border-muted-foreground'}`}>
@@ -488,7 +537,7 @@ const Checkout = () => {
                                           <FormItem>
                                             <FormLabel>Cardholder Name</FormLabel>
                                             <FormControl>
-                                              <Input placeholder="John Doe" {...field} />
+                                              <Input placeholder="Abdi Hassan" {...field} />
                                             </FormControl>
                                             <FormMessage />
                                           </FormItem>
@@ -524,19 +573,6 @@ const Checkout = () => {
                                       </div>
                                     </div>
                                   )}
-                                </div>
-                              </div>
-                              
-                              <div className={`p-4 border rounded-lg flex items-start space-x-4 cursor-pointer transition-all ${field.value === 'paypal' ? 'border-primary bg-primary/5' : 'border-border'}`}
-                                onClick={() => form.setValue('paymentMethod', 'paypal')}>
-                                <div className={`flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center ${field.value === 'paypal' ? 'border-primary' : 'border-muted-foreground'}`}>
-                                  {field.value === 'paypal' && <div className="w-2.5 h-2.5 rounded-full bg-primary"></div>}
-                                </div>
-                                <div className="flex-1">
-                                  <h4 className="font-medium">PayPal</h4>
-                                  <p className="text-sm text-muted-foreground mt-1">
-                                    You'll be redirected to PayPal to complete your purchase securely.
-                                  </p>
                                 </div>
                               </div>
                               <FormMessage />
@@ -601,7 +637,7 @@ const Checkout = () => {
                     <p className="font-medium">{deliveryFee === 0 ? 'Free' : `$${deliveryFee.toFixed(2)}`}</p>
                   </div>
                   <div className="flex justify-between">
-                    <p className="text-muted-foreground">Tax (7%)</p>
+                    <p className="text-muted-foreground">Tax (5%)</p>
                     <p className="font-medium">${tax.toFixed(2)}</p>
                   </div>
                 </div>
