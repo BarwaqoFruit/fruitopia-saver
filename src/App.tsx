@@ -15,6 +15,7 @@ import Checkout from "./pages/Checkout";
 import CheckoutSuccess from "./pages/CheckoutSuccess";
 import AdminDashboard from "./pages/AdminDashboard";
 import OrderDetail from "./pages/OrderDetail";
+import ProductManagement from "./pages/admin/ProductManagement";
 import { CartProvider } from "./contexts/CartContext";
 import { WishlistProvider } from "./contexts/WishlistContext";
 
@@ -48,7 +49,7 @@ const App = () => (
               <Route path="/wishlist" element={<Wishlist />} />
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/admin/orders/:id" element={<OrderDetail />} />
-              <Route path="/admin/products" element={<Index />} /> {/* Placeholder for Products Management */}
+              <Route path="/admin/products" element={<ProductManagement />} /> {/* Updated route for Product Management */}
               <Route path="/admin/users" element={<Index />} /> {/* Placeholder for User Management */}
               <Route path="/admin/settings" element={<Index />} /> {/* Placeholder for Admin Settings */}
             </Routes>

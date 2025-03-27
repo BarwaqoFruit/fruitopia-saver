@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+
+import React, { useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, ShoppingCart, Heart, Share2, Star, Info, Leaf, Clock, Shield, Truck } from "lucide-react";
+import { ArrowLeft, ShoppingCart, Heart, Share2, Star, Leaf, Clock, Shield, Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/contexts/CartContext";
@@ -8,41 +9,21 @@ import PageLayout from "@/components/layout/PageLayout";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
-
-interface ProductDetails {
-  id: number;
-  name: string;
-  category: string;
-  price: number;
-  rating: number;
-  image: string;
-  isOrganic: boolean;
-  isNew: boolean;
-  origin?: string;
-  description: string;
-  nutritionalInfo: {
-    calories: string;
-    fat: string;
-    protein: string;
-    carbs: string;
-    vitamins: string[];
-  };
-  storage: string;
-  season: string;
-}
+import { fetchProductById } from "@/utils/productUtils";
 
 const ProductDetail = () => {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const [quantity, setQuantity] = useState(1);
   const { addItem } = useCart();
   const [added, setAdded] = useState(false);
+  const { toast } = useToast();
 
   const { data: product, isLoading, error } = useQuery({
     queryKey: ['product', id],
-    queryFn: async () => {
-      return null as ProductDetails | null;
-    }
+    queryFn: () => fetchProductById(id as string),
+    enabled: !!id
   });
 
   const handleAddToCart = () => {
@@ -55,8 +36,15 @@ const ProductDetail = () => {
         quantity: quantity,
         category: product.category
       });
+      
       setAdded(true);
       setTimeout(() => setAdded(false), 3000);
+      
+      toast({
+        title: "Added to cart",
+        description: `${product.name} has been added to your cart.`,
+        duration: 3000,
+      });
     }
   };
 

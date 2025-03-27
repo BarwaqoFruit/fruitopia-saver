@@ -10,26 +10,18 @@ import { ShoppingCart, Star, Heart, Filter, X, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
-import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
-
-// Product type
-interface Product {
-  id: number;
-  name: string;
-  category: string;
-  price: number;
-  rating: number;
-  image: string;
-  isOrganic: boolean;
-  isNew: boolean;
-  origin?: string;
-  tags: string[];
-}
+import { 
+  Product, 
+  fetchProducts, 
+  getUniqueCategories 
+} from "@/utils/productUtils";
 
 // Product Card Component
 const ProductCard = ({ product }: { product: Product }) => {
   const { addItem } = useCart();
+  const { toast } = useToast();
 
   const handleAddToCart = () => {
     addItem({
@@ -40,10 +32,16 @@ const ProductCard = ({ product }: { product: Product }) => {
       quantity: 1,
       category: product.category
     });
+    
+    toast({
+      title: "Added to cart",
+      description: `${product.name} has been added to your cart.`,
+      duration: 3000,
+    });
   };
 
   return (
-    <div className="luxury-product-card group">
+    <div className="luxury-product-card group relative">
       {/* Product Badges */}
       <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
         {product.isOrganic && (
@@ -72,7 +70,7 @@ const ProductCard = ({ product }: { product: Product }) => {
           <img 
             src={product.image} 
             alt={product.name} 
-            className="luxury-product-image aspect-square w-full object-cover"
+            className="luxury-product-image aspect-square w-full object-cover transition-all duration-500 hover:scale-105"
           />
         </Link>
       </div>
@@ -130,23 +128,12 @@ const Shop = () => {
   const [priceRange, setPriceRange] = useState([0, 15]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [products, setProducts] = useState<Product[]>([]);
 
-  // Fetch products from API or database
-  const { data, isLoading, error } = useQuery({
+  // Fetch products from database
+  const { data: products = [], isLoading, error } = useQuery({
     queryKey: ['products'],
-    queryFn: async () => {
-      // This is a placeholder for fetching real products from an API or database
-      // You'll need to implement this based on your data source
-      return [];
-    }
+    queryFn: fetchProducts
   });
-
-  useEffect(() => {
-    if (data) {
-      setProducts(data);
-    }
-  }, [data]);
 
   // Filter products based on selected filters
   const filteredProducts = products.filter(product => {
@@ -184,7 +171,7 @@ const Shop = () => {
   };
 
   // Get unique categories
-  const categories = Array.from(new Set(products.map(product => product.category)));
+  const categories = getUniqueCategories(products);
 
   return (
     <PageLayout>
