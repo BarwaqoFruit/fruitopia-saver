@@ -8,6 +8,7 @@ import { getOrderById } from "@/utils/orderUtils";
 
 const CheckoutSuccess = () => {
   const [orderId, setOrderId] = useState<string | null>(null);
+  const [orderDetails, setOrderDetails] = useState<any>(null);
   const location = useLocation();
   
   useEffect(() => {
@@ -16,6 +17,18 @@ const CheckoutSuccess = () => {
     const id = params.get('order_id');
     if (id) {
       setOrderId(id);
+      
+      // Fetch order details
+      const fetchOrderDetails = async () => {
+        try {
+          const details = await getOrderById(id);
+          setOrderDetails(details);
+        } catch (error) {
+          console.error("Error fetching order details:", error);
+        }
+      };
+      
+      fetchOrderDetails();
     }
   }, [location]);
 

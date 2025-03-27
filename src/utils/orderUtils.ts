@@ -1,6 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { CartItem } from "@/contexts/CartContext";
+import { Json } from "@/integrations/supabase/types";
 
 // Interface for order details
 export interface OrderDetails {
@@ -21,15 +22,24 @@ export interface OrderDetails {
 
 // Function to save order to Supabase
 export const saveOrder = async (orderDetails: OrderDetails) => {
-  // Convert items array to JSON string for storage
+  // Convert CartItem[] to a JSON compatible format
   const orderData = {
-    ...orderDetails,
-    items: orderDetails.items,
+    customer_name: orderDetails.customer_name,
+    customer_email: orderDetails.customer_email,
+    customer_phone: orderDetails.customer_phone,
+    shipping_address: orderDetails.shipping_address,
+    city: orderDetails.city,
+    region: orderDetails.region,
+    payment_method: orderDetails.payment_method,
+    payment_status: orderDetails.payment_status,
+    order_status: orderDetails.order_status,
+    total_amount: orderDetails.total_amount,
+    items: orderDetails.items as unknown as Json,
   };
 
   const { data, error } = await supabase
     .from('orders')
-    .insert([orderData])
+    .insert(orderData)
     .select('id');
 
   if (error) {
