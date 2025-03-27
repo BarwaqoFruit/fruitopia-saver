@@ -24,7 +24,7 @@ export const saveOrder = async (orderDetails: OrderDetails) => {
   // Convert items array to JSON string for storage
   const orderData = {
     ...orderDetails,
-    items: JSON.stringify(orderDetails.items),
+    items: orderDetails.items,
   };
 
   const { data, error } = await supabase
@@ -53,11 +53,7 @@ export const getOrderById = async (orderId: string) => {
     throw new Error('Failed to fetch order');
   }
 
-  // Parse items JSON string back to array
-  return {
-    ...data,
-    items: data ? JSON.parse(data.items) : [],
-  };
+  return data;
 };
 
 // Function to update order status

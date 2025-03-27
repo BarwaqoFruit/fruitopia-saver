@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { z } from "zod";
@@ -21,6 +20,7 @@ import PageLayout from "@/components/layout/PageLayout";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useCart } from "@/contexts/CartContext";
+import { saveOrder } from "@/utils/orderUtils";
 import {
   Form,
   FormControl,
@@ -100,18 +100,40 @@ const Checkout = () => {
     },
   });
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsProcessing(true);
     
-    // Simulate payment processing
-    setTimeout(() => {
+    try {
+      const orderData = {
+        customer_name: `${values.firstName} ${values.lastName}`,
+        customer_email: values.email,
+        customer_phone: values.phone,
+        shipping_address: values.address,
+        city: values.city,
+        region: values.state,
+        payment_method: values.paymentMethod,
+        payment_status: "pending",
+        order_status: "processing",
+        total_amount: orderTotal,
+        items: items
+      };
+      
+      const orderId = await saveOrder(orderData);
+      
       toast.success("Order successfully placed!", {
         description: "Your order has been confirmed and is being processed.",
       });
+      
       clearCart();
       setIsProcessing(false);
-      navigate("/checkout/success");
-    }, 2000);
+      navigate(`/checkout/success?order_id=${orderId}`);
+    } catch (error) {
+      console.error("Error saving order:", error);
+      setIsProcessing(false);
+      toast.error("Error processing your order", {
+        description: "Please try again or contact customer service.",
+      });
+    }
   };
 
   const goToNextStep = () => {

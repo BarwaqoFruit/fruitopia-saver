@@ -1,13 +1,33 @@
 
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { CheckCircle, ShoppingBag, ArrowRight, MapPin, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import PageLayout from "@/components/layout/PageLayout";
+import { getOrderById } from "@/utils/orderUtils";
 
 const CheckoutSuccess = () => {
+  const [orderId, setOrderId] = useState<string | null>(null);
+  const location = useLocation();
+  
+  useEffect(() => {
+    // Check if order ID is in the URL query params
+    const params = new URLSearchParams(location.search);
+    const id = params.get('order_id');
+    if (id) {
+      setOrderId(id);
+    }
+  }, [location]);
+
   // Generate a unique Somali-style order reference
   const generateOrderReference = () => {
+    if (orderId) {
+      // Use the first 8 characters of the order ID
+      const shortId = orderId.slice(0, 8);
+      return `BRW-${shortId}`;
+    }
+    
+    // Fallback if no order ID
     const prefix = "BRW";
     const timestamp = new Date().getTime().toString().slice(-6);
     const random = Math.floor(1000 + Math.random() * 9000);
