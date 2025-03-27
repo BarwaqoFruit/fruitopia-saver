@@ -50,6 +50,21 @@ export const saveOrder = async (orderDetails: OrderDetails) => {
   return data?.[0]?.id;
 };
 
+// Function to get all orders
+export const getOrders = async () => {
+  const { data, error } = await supabase
+    .from('orders')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching orders:', error);
+    throw new Error('Failed to fetch orders');
+  }
+
+  return data || [];
+};
+
 // Function to get order by ID
 export const getOrderById = async (orderId: string) => {
   const { data, error } = await supabase

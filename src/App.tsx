@@ -13,6 +13,8 @@ import ProductDetail from "./pages/ProductDetail";
 import Wishlist from "./pages/Wishlist";
 import Checkout from "./pages/Checkout";
 import CheckoutSuccess from "./pages/CheckoutSuccess";
+import AdminDashboard from "./pages/AdminDashboard";
+import OrderDetail from "./pages/OrderDetail";
 import { CartProvider } from "./contexts/CartContext";
 import { WishlistProvider } from "./contexts/WishlistContext";
 
@@ -44,6 +46,8 @@ const App = () => (
               <Route path="/returns" element={<Index />} /> {/* Placeholder for Returns page */}
               <Route path="/privacy" element={<Index />} /> {/* Placeholder for Privacy page */}
               <Route path="/wishlist" element={<Wishlist />} />
+              <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/admin/orders/:id" element={<OrderDetail />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
