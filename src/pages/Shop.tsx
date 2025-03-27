@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+
+import React, { useState, useEffect } from "react";
 import PageLayout from "@/components/layout/PageLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +10,8 @@ import { ShoppingCart, Star, Heart, Filter, X, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 
 // Product type
 interface Product {
@@ -23,154 +26,6 @@ interface Product {
   origin?: string;
   tags: string[];
 }
-
-// Mock product data
-const products: Product[] = [
-  {
-    id: 1,
-    name: "Premium Avocado",
-    category: "Organic",
-    price: 6.99,
-    rating: 4.8,
-    image: "https://images.unsplash.com/photo-1551460188-2456b57a5470?q=80&w=600&auto=format&fit=crop",
-    isOrganic: true,
-    isNew: false,
-    origin: "Mexico",
-    tags: ["organic", "popular", "healthy"]
-  },
-  {
-    id: 2,
-    name: "Dragon Fruit",
-    category: "Exotic",
-    price: 9.99,
-    rating: 4.6,
-    image: "https://images.unsplash.com/photo-1550258987-190a2d41a8ba?q=80&w=600&auto=format&fit=crop",
-    isOrganic: false,
-    isNew: true,
-    origin: "Vietnam",
-    tags: ["exotic", "rare", "superfood"]
-  },
-  {
-    id: 3,
-    name: "Organic Strawberries",
-    category: "Premium",
-    price: 7.49,
-    rating: 4.9,
-    image: "https://images.unsplash.com/photo-1587393855524-087f83d95bc9?q=80&w=600&auto=format&fit=crop",
-    isOrganic: true,
-    isNew: false,
-    origin: "California",
-    tags: ["organic", "seasonal", "antioxidant"]
-  },
-  {
-    id: 4,
-    name: "Fresh Blueberries",
-    category: "Organic",
-    price: 8.99,
-    rating: 4.7,
-    image: "https://images.unsplash.com/photo-1592154014823-eb3e127b44dd?q=80&w=600&auto=format&fit=crop",
-    isOrganic: true,
-    isNew: false,
-    origin: "Oregon",
-    tags: ["organic", "superfood", "antioxidant"]
-  },
-  {
-    id: 5,
-    name: "Passion Fruit",
-    category: "Exotic",
-    price: 10.49,
-    rating: 4.5,
-    image: "https://images.unsplash.com/photo-1604144894686-7e33f3a52667?q=80&w=600&auto=format&fit=crop",
-    isOrganic: false,
-    isNew: true,
-    origin: "Brazil",
-    tags: ["exotic", "tropical", "rare"]
-  },
-  {
-    id: 6,
-    name: "Golden Kiwi",
-    category: "Exotic",
-    price: 7.99,
-    rating: 4.4,
-    image: "https://images.unsplash.com/photo-1618897996318-5a901fa6ca71?q=80&w=600&auto=format&fit=crop",
-    isOrganic: true,
-    isNew: false,
-    origin: "New Zealand",
-    tags: ["organic", "vitamin-c", "superfood"]
-  },
-  {
-    id: 7,
-    name: "Organic Raspberries",
-    category: "Premium",
-    price: 9.49,
-    rating: 4.8,
-    image: "https://images.unsplash.com/photo-1577069861033-54d656574adf?q=80&w=600&auto=format&fit=crop",
-    isOrganic: true,
-    isNew: false,
-    origin: "Washington",
-    tags: ["organic", "seasonal", "antioxidant"]
-  },
-  {
-    id: 8,
-    name: "Lychee",
-    category: "Exotic",
-    price: 12.99,
-    rating: 4.6,
-    image: "https://images.unsplash.com/photo-1620429527435-2fcce63d3eb8?q=80&w=600&auto=format&fit=crop",
-    isOrganic: false,
-    isNew: true,
-    origin: "Thailand",
-    tags: ["exotic", "tropical", "seasonal"]
-  },
-  {
-    id: 9,
-    name: "Mango",
-    category: "Tropical",
-    price: 5.99,
-    rating: 4.7,
-    image: "https://images.unsplash.com/photo-1553279768-865429fa0078?q=80&w=600&auto=format&fit=crop",
-    isOrganic: false,
-    isNew: false,
-    origin: "India",
-    tags: ["tropical", "popular", "vitamin-a"]
-  },
-  {
-    id: 10,
-    name: "Pink Lady Apple",
-    category: "Classic",
-    price: 3.99,
-    rating: 4.5,
-    image: "https://images.unsplash.com/photo-1606757389723-23c4e4c2bcdb?q=80&w=600&auto=format&fit=crop",
-    isOrganic: true,
-    isNew: false,
-    origin: "Washington",
-    tags: ["organic", "everyday", "fiber"]
-  },
-  {
-    id: 11,
-    name: "Blood Orange",
-    category: "Specialty",
-    price: 7.49,
-    rating: 4.6,
-    image: "https://images.unsplash.com/photo-1597714026720-8f74c62310ba?q=80&w=600&auto=format&fit=crop",
-    isOrganic: true,
-    isNew: true,
-    origin: "Sicily",
-    tags: ["organic", "specialty", "vitamin-c"]
-  },
-  {
-    id: 12,
-    name: "Pineapple",
-    category: "Tropical",
-    price: 8.99,
-    rating: 4.3,
-    image: "https://images.unsplash.com/photo-1589820296156-2454bb8a6ad1?q=80&w=600&auto=format&fit=crop",
-    isOrganic: false,
-    isNew: false,
-    origin: "Costa Rica",
-    tags: ["tropical", "enzyme", "vitamin-c"]
-  }
-];
 
 // Product Card Component
 const ProductCard = ({ product }: { product: Product }) => {
@@ -275,6 +130,23 @@ const Shop = () => {
   const [priceRange, setPriceRange] = useState([0, 15]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [products, setProducts] = useState<Product[]>([]);
+
+  // Fetch products from API or database
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['products'],
+    queryFn: async () => {
+      // This is a placeholder for fetching real products from an API or database
+      // You'll need to implement this based on your data source
+      return [];
+    }
+  });
+
+  useEffect(() => {
+    if (data) {
+      setProducts(data);
+    }
+  }, [data]);
 
   // Filter products based on selected filters
   const filteredProducts = products.filter(product => {
@@ -334,7 +206,11 @@ const Shop = () => {
           <div className="flex flex-wrap items-center justify-between mb-8">
             <div className="mb-4 lg:mb-0">
               <h2 className="font-serif text-2xl">Browse Products</h2>
-              <p className="text-muted-foreground">Showing {filteredProducts.length} of {products.length} products</p>
+              <p className="text-muted-foreground">
+                {isLoading ? 'Loading products...' : 
+                 error ? 'Error loading products' : 
+                 `Showing ${filteredProducts.length} of ${products.length} products`}
+              </p>
             </div>
             
             <div className="flex flex-wrap gap-4 items-center">
@@ -490,7 +366,18 @@ const Shop = () => {
             
             {/* Products Grid */}
             <div>
-              {filteredProducts.length > 0 ? (
+              {isLoading ? (
+                <div className="text-center py-16">
+                  <h3 className="font-serif text-xl mb-4">Loading Products...</h3>
+                  <p className="text-muted-foreground">Please wait while we fetch the products.</p>
+                </div>
+              ) : error ? (
+                <div className="text-center py-16">
+                  <h3 className="font-serif text-xl mb-4">Error Loading Products</h3>
+                  <p className="text-muted-foreground mb-8">There was an error fetching the products. Please try again later.</p>
+                  <Button variant="outline">Retry</Button>
+                </div>
+              ) : filteredProducts.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                   {filteredProducts.map(product => (
                     <ProductCard key={product.id} product={product} />
@@ -499,7 +386,11 @@ const Shop = () => {
               ) : (
                 <div className="text-center py-16">
                   <h3 className="font-serif text-xl mb-4">No Products Found</h3>
-                  <p className="text-muted-foreground mb-8">Try adjusting your filters or search query.</p>
+                  <p className="text-muted-foreground mb-8">
+                    {products.length === 0 
+                      ? "No products have been added to the store yet."
+                      : "Try adjusting your filters or search query."}
+                  </p>
                   <Button 
                     variant="outline" 
                     onClick={() => {

@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Link } from "react-router-dom";
-import { Shield } from "lucide-react";
+import { Shield, LayoutDashboard, ShoppingBag, Users, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -25,16 +25,28 @@ const AdminMenu = () => {
         <DropdownMenuLabel>Admin Controls</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link to="/admin">Dashboard</Link>
+          <Link to="/admin">
+            <LayoutDashboard className="h-4 w-4 mr-2" />
+            Dashboard
+          </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem disabled>
-          Products Management
+        <DropdownMenuItem asChild>
+          <Link to="/admin/products">
+            <ShoppingBag className="h-4 w-4 mr-2" />
+            Products Management
+          </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem disabled>
-          User Management
+        <DropdownMenuItem asChild>
+          <Link to="/admin/users">
+            <Users className="h-4 w-4 mr-2" />
+            User Management
+          </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem disabled>
-          Settings
+        <DropdownMenuItem asChild>
+          <Link to="/admin/settings">
+            <Settings className="h-4 w-4 mr-2" />
+            Settings
+          </Link>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

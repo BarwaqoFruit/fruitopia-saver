@@ -48,7 +48,9 @@ const App = () => (
               <Route path="/wishlist" element={<Wishlist />} />
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/admin/orders/:id" element={<OrderDetail />} />
-              <Route path="*" element={<NotFound />} />
+              <Route path="/admin/products" element={<Index />} /> {/* Placeholder for Products Management */}
+              <Route path="/admin/users" element={<Index />} /> {/* Placeholder for User Management */}
+              <Route path="/admin/settings" element={<Index />} /> {/* Placeholder for Admin Settings */}
             </Routes>
           </BrowserRouter>
         </TooltipProvider>

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ShoppingCart, Star, Heart, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/contexts/CartContext";
+import { useQuery } from "@tanstack/react-query";
 
 interface ProductProps {
   id: number;
@@ -116,96 +117,14 @@ const ProductCard = ({ id, name, category, price, rating, image, isOrganic, isNe
 };
 
 const FeaturedProducts = () => {
-  const products = [
-    {
-      id: 1,
-      name: "Premium Avocado",
-      category: "Organic",
-      price: 6.99,
-      rating: 4.8,
-      image: "https://images.unsplash.com/photo-1551460188-2456b57a5470?q=80&w=600&auto=format&fit=crop",
-      isOrganic: true,
-      isNew: false,
-      origin: "Mexico"
-    },
-    {
-      id: 2,
-      name: "Dragon Fruit",
-      category: "Exotic",
-      price: 9.99,
-      rating: 4.6,
-      image: "https://images.unsplash.com/photo-1550258987-190a2d41a8ba?q=80&w=600&auto=format&fit=crop",
-      isOrganic: false,
-      isNew: true,
-      origin: "Vietnam"
-    },
-    {
-      id: 3,
-      name: "Organic Strawberries",
-      category: "Premium",
-      price: 7.49,
-      rating: 4.9,
-      image: "https://images.unsplash.com/photo-1587393855524-087f83d95bc9?q=80&w=600&auto=format&fit=crop",
-      isOrganic: true,
-      isNew: false,
-      origin: "California"
-    },
-    {
-      id: 4,
-      name: "Fresh Blueberries",
-      category: "Organic",
-      price: 8.99,
-      rating: 4.7,
-      image: "https://images.unsplash.com/photo-1592154014823-eb3e127b44dd?q=80&w=600&auto=format&fit=crop",
-      isOrganic: true,
-      isNew: false,
-      origin: "Oregon"
-    },
-    {
-      id: 5,
-      name: "Passion Fruit",
-      category: "Exotic",
-      price: 10.49,
-      rating: 4.5,
-      image: "https://images.unsplash.com/photo-1604144894686-7e33f3a52667?q=80&w=600&auto=format&fit=crop",
-      isOrganic: false,
-      isNew: true,
-      origin: "Brazil"
-    },
-    {
-      id: 6,
-      name: "Golden Kiwi",
-      category: "Exotic",
-      price: 7.99,
-      rating: 4.4,
-      image: "https://images.unsplash.com/photo-1618897996318-5a901fa6ca71?q=80&w=600&auto=format&fit=crop",
-      isOrganic: true,
-      isNew: false,
-      origin: "New Zealand"
-    },
-    {
-      id: 7,
-      name: "Organic Raspberries",
-      category: "Premium",
-      price: 9.49,
-      rating: 4.8,
-      image: "https://images.unsplash.com/photo-1577069861033-54d656574adf?q=80&w=600&auto=format&fit=crop",
-      isOrganic: true,
-      isNew: false,
-      origin: "Washington"
-    },
-    {
-      id: 8,
-      name: "Lychee",
-      category: "Exotic",
-      price: 12.99,
-      rating: 4.6,
-      image: "https://images.unsplash.com/photo-1620429527435-2fcce63d3eb8?q=80&w=600&auto=format&fit=crop",
-      isOrganic: false,
-      isNew: true,
-      origin: "Thailand"
+  const { data: products, isLoading, error } = useQuery({
+    queryKey: ['featuredProducts'],
+    queryFn: async () => {
+      // This is a placeholder for fetching featured products from your API or database
+      // You'll need to implement this based on your data source
+      return [];
     }
-  ];
+  });
 
   return (
     <section className="py-24 bg-background">
@@ -218,11 +137,25 @@ const FeaturedProducts = () => {
           </p>
         </div>
         
-        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          {products.map((product) => (
-            <ProductCard key={product.id} {...product} />
-          ))}
-        </div>
+        {isLoading ? (
+          <div className="text-center py-16">
+            <p>Loading products...</p>
+          </div>
+        ) : error ? (
+          <div className="text-center py-16">
+            <p>Error loading products. Please try again later.</p>
+          </div>
+        ) : products && products.length > 0 ? (
+          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            {products.map((product) => (
+              <ProductCard key={product.id} {...product} />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-16">
+            <p>No featured products available at the moment.</p>
+          </div>
+        )}
         
         <div className="mt-16 text-center">
           <Button asChild variant="outline" size="lg" className="luxury-button-outline rounded-md px-8">
