@@ -18,6 +18,11 @@ export interface OrderDetails {
   total_amount: number;
   items: CartItem[];
   created_at?: string;
+  payment_details?: {
+    wafi_number?: string;
+    transaction_id?: string;
+    payment_type?: string;
+  };
 }
 
 // Function to save order to Supabase
@@ -35,6 +40,7 @@ export const saveOrder = async (orderDetails: OrderDetails) => {
     order_status: orderDetails.order_status,
     total_amount: orderDetails.total_amount,
     items: orderDetails.items as unknown as Json,
+    payment_details: orderDetails.payment_details as unknown as Json,
   };
 
   const { data, error } = await supabase
@@ -60,6 +66,38 @@ export const getOrders = async () => {
   if (error) {
     console.error('Error fetching orders:', error);
     throw new Error('Failed to fetch orders');
+  }
+
+  return data || [];
+};
+
+// Function to search orders
+export const searchOrders = async (query: string) => {
+  const { data, error } = await supabase
+    .from('orders')
+    .select('*')
+    .or(`customer_name.ilike.%${query}%,customer_email.ilike.%${query}%,customer_phone.ilike.%${query}%,id.ilike.%${query}%`)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error searching orders:', error);
+    throw new Error('Failed to search orders');
+  }
+
+  return data || [];
+};
+
+// Function to filter orders by status
+export const filterOrdersByStatus = async (status: string) => {
+  const { data, error } = await supabase
+    .from('orders')
+    .select('*')
+    .eq('order_status', status)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error filtering orders:', error);
+    throw new Error('Failed to filter orders');
   }
 
   return data || [];
@@ -104,5 +142,18 @@ export const updatePaymentStatus = async (orderId: string, status: string) => {
   if (error) {
     console.error('Error updating payment status:', error);
     throw new Error('Failed to update payment status');
+  }
+};
+
+// Function to update payment details
+export const updatePaymentDetails = async (orderId: string, details: any) => {
+  const { error } = await supabase
+    .from('orders')
+    .update({ payment_details: details })
+    .eq('id', orderId);
+
+  if (error) {
+    console.error('Error updating payment details:', error);
+    throw new Error('Failed to update payment details');
   }
 };

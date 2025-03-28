@@ -3,13 +3,14 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
   Package, ShoppingBag, Users, Settings, Eye, 
-  CheckCircle, XCircle, RefreshCw, AlertTriangle
+  CheckCircle, XCircle, RefreshCw, AlertTriangle, Search, Filter, X
 } from "lucide-react";
 import PageLayout from "@/components/layout/PageLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -18,12 +19,20 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { getOrders, updateOrderStatus, updatePaymentStatus } from "@/utils/orderUtils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { getOrders, updateOrderStatus, updatePaymentStatus, searchOrders, filterOrdersByStatus } from "@/utils/orderUtils";
 import { toast } from "sonner";
 
 const AdminDashboard = () => {
   const [orders, setOrders] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -35,12 +44,52 @@ const AdminDashboard = () => {
     try {
       const data = await getOrders();
       setOrders(data);
+      setActiveFilter(null);
+      setSearchQuery("");
     } catch (error) {
       console.error("Error fetching orders:", error);
       toast.error("Failed to load orders");
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleSearch = async () => {
+    if (!searchQuery.trim()) {
+      fetchOrders();
+      return;
+    }
+    
+    setIsLoading(true);
+    try {
+      const data = await searchOrders(searchQuery);
+      setOrders(data);
+      setActiveFilter(null);
+    } catch (error) {
+      console.error("Error searching orders:", error);
+      toast.error("Failed to search orders");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleFilter = async (status: string) => {
+    setIsLoading(true);
+    try {
+      const data = await filterOrdersByStatus(status);
+      setOrders(data);
+      setActiveFilter(status);
+      setSearchQuery("");
+    } catch (error) {
+      console.error("Error filtering orders:", error);
+      toast.error("Failed to filter orders");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const clearFilters = () => {
+    fetchOrders();
   };
 
   const handleUpdateOrderStatus = async (orderId: string, status: string) => {
@@ -107,7 +156,14 @@ const AdminDashboard = () => {
         <div className="text-center py-8">
           <AlertTriangle className="mx-auto h-12 w-12 text-amber-500 mb-4" />
           <h3 className="text-lg font-medium">No orders found</h3>
-          <p className="text-muted-foreground">There are no orders in the system yet.</p>
+          <p className="text-muted-foreground">
+            {searchQuery ? "No orders matching your search criteria." : activeFilter ? `No orders with status "${activeFilter}".` : "There are no orders in the system yet."}
+          </p>
+          {(searchQuery || activeFilter) && (
+            <Button onClick={clearFilters} variant="outline" className="mt-4">
+              Clear Filters
+            </Button>
+          )}
         </div>
       );
     }
@@ -121,6 +177,7 @@ const AdminDashboard = () => {
               <TableHead>Customer</TableHead>
               <TableHead>Date</TableHead>
               <TableHead>Amount</TableHead>
+              <TableHead>Payment Info</TableHead>
               <TableHead>Payment</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Actions</TableHead>
@@ -130,9 +187,31 @@ const AdminDashboard = () => {
             {orders.map((order) => (
               <TableRow key={order.id}>
                 <TableCell className="font-mono text-xs">{order.id.slice(0, 8)}...</TableCell>
-                <TableCell>{order.customer_name}</TableCell>
+                <TableCell>
+                  <div>{order.customer_name}</div>
+                  <div className="text-xs text-muted-foreground">{order.customer_phone}</div>
+                </TableCell>
                 <TableCell>{formatDate(order.created_at)}</TableCell>
                 <TableCell>${order.total_amount}</TableCell>
+                <TableCell>
+                  <div className="text-xs">
+                    {order.payment_method}
+                    {order.payment_details && (
+                      <div className="mt-1">
+                        {order.payment_details.wafi_number && (
+                          <div className="truncate">
+                            Wafi: {order.payment_details.wafi_number}
+                          </div>
+                        )}
+                        {order.payment_details.payment_type && (
+                          <div className="truncate">
+                            Type: {order.payment_details.payment_type}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </TableCell>
                 <TableCell>
                   <Badge className={getStatusColor(order.payment_status)}>
                     {order.payment_status}
@@ -278,6 +357,87 @@ const AdminDashboard = () => {
           </TabsList>
           
           <TabsContent value="orders" className="space-y-4">
+            {/* Search and Filter Bar */}
+            <div className="flex flex-col sm:flex-row gap-4 mb-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search orders by name, email, phone or ID..."
+                  className="pl-8"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                />
+                {searchQuery && (
+                  <button 
+                    onClick={() => { setSearchQuery(''); fetchOrders(); }}
+                    className="absolute right-2.5 top-2.5 text-muted-foreground hover:text-foreground"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+              <Button onClick={handleSearch} className="shrink-0">
+                Search
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="shrink-0">
+                    <Filter className="mr-2 h-4 w-4" />
+                    {activeFilter ? `Filter: ${activeFilter}` : "Filter"}
+                    {activeFilter && (
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); clearFilters(); }}
+                        className="ml-2 text-muted-foreground hover:text-foreground"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    )}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => handleFilter('processing')}>
+                    Processing
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleFilter('shipped')}>
+                    Shipped
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleFilter('completed')}>
+                    Completed
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleFilter('cancelled')}>
+                    Cancelled
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+
+            {/* Active Filters Display */}
+            {(searchQuery || activeFilter) && (
+              <div className="flex items-center gap-2 mb-4 text-sm">
+                <span className="text-muted-foreground">Active filters:</span>
+                {searchQuery && (
+                  <Badge variant="outline" className="flex items-center gap-1">
+                    Search: {searchQuery}
+                    <button onClick={() => { setSearchQuery(''); fetchOrders(); }}>
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                )}
+                {activeFilter && (
+                  <Badge variant="outline" className="flex items-center gap-1">
+                    Status: {activeFilter}
+                    <button onClick={clearFilters}>
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                )}
+                <Button variant="ghost" size="sm" onClick={clearFilters} className="h-7 px-2">
+                  Clear all
+                </Button>
+              </div>
+            )}
+
             {renderOrdersTable()}
           </TabsContent>
           

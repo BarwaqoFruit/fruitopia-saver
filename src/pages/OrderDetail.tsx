@@ -1,13 +1,15 @@
 
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft, Package, MapPin, Phone, Mail, CreditCard, CheckCircle, Truck, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Package, MapPin, Phone, Mail, CreditCard, CheckCircle, Truck, AlertTriangle, Search, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import PageLayout from "@/components/layout/PageLayout";
-import { getOrderById, updateOrderStatus, updatePaymentStatus } from "@/utils/orderUtils";
+import { getOrderById, updateOrderStatus, updatePaymentStatus, updatePaymentDetails } from "@/utils/orderUtils";
 import { toast } from "sonner";
 
 const OrderDetail = () => {
@@ -15,6 +17,12 @@ const OrderDetail = () => {
   const [order, setOrder] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
+  const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+  const [paymentDetails, setPaymentDetails] = useState({
+    wafi_number: "",
+    transaction_id: "",
+    payment_type: ""
+  });
 
   useEffect(() => {
     if (id) {
@@ -27,6 +35,15 @@ const OrderDetail = () => {
     try {
       const data = await getOrderById(orderId);
       setOrder(data);
+      
+      // Initialize payment details if they exist
+      if (data.payment_details) {
+        setPaymentDetails({
+          wafi_number: data.payment_details.wafi_number || "",
+          transaction_id: data.payment_details.transaction_id || "",
+          payment_type: data.payment_details.payment_type || ""
+        });
+      }
     } catch (error) {
       console.error("Error fetching order details:", error);
       toast.error("Failed to load order details");
@@ -56,6 +73,19 @@ const OrderDetail = () => {
     } catch (error) {
       console.error("Error updating payment status:", error);
       toast.error("Failed to update payment status");
+    }
+  };
+
+  const handleUpdatePaymentDetails = async () => {
+    if (!id) return;
+    try {
+      await updatePaymentDetails(id, paymentDetails);
+      toast.success("Payment details updated");
+      setShowPaymentDialog(false);
+      fetchOrderDetails(id); // Refresh the order details
+    } catch (error) {
+      console.error("Error updating payment details:", error);
+      toast.error("Failed to update payment details");
     }
   };
 
@@ -325,12 +355,49 @@ const OrderDetail = () => {
                 
                 <div className="flex items-start space-x-2">
                   <CreditCard className="h-4 w-4 text-muted-foreground mt-1" />
-                  <div>
+                  <div className="w-full">
                     <div className="text-sm text-muted-foreground mb-1">
                       Payment Method
                     </div>
-                    <div className="font-medium capitalize">
+                    <div className="font-medium capitalize mb-2">
                       {order.payment_method}
+                    </div>
+                    
+                    {/* Payment Details Section */}
+                    <div className="bg-muted p-3 rounded-md mt-2">
+                      <h4 className="text-sm font-medium mb-2">Payment Details</h4>
+                      {order.payment_details ? (
+                        <div className="space-y-1 text-sm">
+                          {order.payment_details.wafi_number && (
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">Wafi Number:</span>
+                              <span>{order.payment_details.wafi_number}</span>
+                            </div>
+                          )}
+                          {order.payment_details.transaction_id && (
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">Transaction ID:</span>
+                              <span>{order.payment_details.transaction_id}</span>
+                            </div>
+                          )}
+                          {order.payment_details.payment_type && (
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">Payment Type:</span>
+                              <span>{order.payment_details.payment_type}</span>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <p className="text-sm text-muted-foreground">No payment details available</p>
+                      )}
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="w-full mt-2"
+                        onClick={() => setShowPaymentDialog(true)}
+                      >
+                        {order.payment_details ? "Update Payment Details" : "Add Payment Details"}
+                      </Button>
                     </div>
                   </div>
                 </div>
@@ -358,6 +425,45 @@ const OrderDetail = () => {
           </div>
         </div>
       </div>
+
+      {/* Payment Details Dialog */}
+      <Dialog open={showPaymentDialog} onOpenChange={setShowPaymentDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Payment Details</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Wafi Number</label>
+              <Input 
+                value={paymentDetails.wafi_number}
+                onChange={(e) => setPaymentDetails({...paymentDetails, wafi_number: e.target.value})}
+                placeholder="Enter wafi number"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Transaction ID</label>
+              <Input 
+                value={paymentDetails.transaction_id}
+                onChange={(e) => setPaymentDetails({...paymentDetails, transaction_id: e.target.value})}
+                placeholder="Enter transaction ID"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Payment Type</label>
+              <Input 
+                value={paymentDetails.payment_type}
+                onChange={(e) => setPaymentDetails({...paymentDetails, payment_type: e.target.value})}
+                placeholder="Enter payment type (e.g., Mobile Money, Card)"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowPaymentDialog(false)}>Cancel</Button>
+            <Button onClick={handleUpdatePaymentDetails}>Save Details</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </PageLayout>
   );
 };
