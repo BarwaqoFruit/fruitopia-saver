@@ -58,25 +58,32 @@ export const AdminAuthProvider = ({ children }: { children: React.ReactNode }) =
   }, []);
 
   const checkAdminStatus = async (userId: string) => {
-    // In a real application, you would check against a database table of admin users
-    // For this demo, we'll use a simple check against the user's email
-    const { data: userData, error } = await supabase
-      .from('admins')
-      .select('*')
-      .eq('user_id', userId)
-      .single();
-    
-    if (error) {
-      console.error('Error checking admin status:', error);
+    try {
+      const { data, error } = await supabase
+        .from('admins')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+      
+      if (error) {
+        console.error('Error checking admin status:', error);
+        setIsAdmin(false);
+        setIsLoading(false);
+        return;
+      }
+      
+      setIsAdmin(!!data);
+      setIsLoading(false);
+    } catch (error) {
+      console.error('Error in checkAdminStatus:', error);
       setIsAdmin(false);
-      return;
+      setIsLoading(false);
     }
-    
-    setIsAdmin(!!userData);
   };
 
   const signIn = async (email: string, password: string) => {
     try {
+      setIsLoading(true);
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -97,21 +104,28 @@ export const AdminAuthProvider = ({ children }: { children: React.ReactNode }) =
     } catch (error: any) {
       toast.error(error.message || "Failed to sign in");
       throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const checkAdminStatusAndReturn = async (userId: string): Promise<boolean> => {
-    const { data: userData, error } = await supabase
-      .from('admins')
-      .select('*')
-      .eq('user_id', userId)
-      .single();
-    
-    if (error || !userData) {
+    try {
+      const { data, error } = await supabase
+        .from('admins')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+      
+      if (error || !data) {
+        return false;
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('Error in checkAdminStatusAndReturn:', error);
       return false;
     }
-    
-    return true;
   };
 
   const signOut = async () => {

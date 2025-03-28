@@ -17,6 +17,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useAdminAuth } from "@/contexts/AdminAuthContext";
 import { useNavigate } from "react-router-dom";
 import { LockKeyhole } from "lucide-react";
+import { toast } from "sonner";
 
 const loginFormSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -51,6 +52,7 @@ const AdminLogin = () => {
       await signIn(values.email, values.password);
     } catch (error) {
       console.error("Login failed:", error);
+      // Error is already handled in signIn function via toast
     } finally {
       setIsLoading(false);
     }
