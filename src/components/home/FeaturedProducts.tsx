@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -15,7 +14,7 @@ const ProductCard = ({ product }: { product: Product }) => {
 
   const handleAddToCart = () => {
     addItem({
-      id: product.id,
+      id: product.id, // This is now a string matching the Product interface
       name: product.name,
       price: product.price,
       image: product.image,

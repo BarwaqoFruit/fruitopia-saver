@@ -1,9 +1,8 @@
-
 import React, { createContext, useContext, useReducer, useEffect } from "react";
 import { toast } from "sonner";
 
 export interface CartItem {
-  id: number;
+  id: string;
   name: string;
   price: number;
   image: string;
@@ -19,8 +18,8 @@ interface CartState {
 
 type CartAction =
   | { type: "ADD_ITEM"; payload: CartItem }
-  | { type: "REMOVE_ITEM"; payload: number }
-  | { type: "UPDATE_QUANTITY"; payload: { id: number; quantity: number } }
+  | { type: "REMOVE_ITEM"; payload: string }
+  | { type: "UPDATE_QUANTITY"; payload: { id: string; quantity: number } }
   | { type: "CLEAR_CART" };
 
 const initialState: CartState = {
@@ -29,7 +28,6 @@ const initialState: CartState = {
   totalPrice: 0,
 };
 
-// Helper function to get cart from localStorage
 const getInitialState = (): CartState => {
   if (typeof window === "undefined") return initialState;
   
@@ -47,7 +45,6 @@ const reducer = (state: CartState, action: CartAction): CartState => {
       );
 
       if (existingItemIndex !== -1) {
-        // Item exists, update quantity
         const updatedItems = [...state.items];
         updatedItems[existingItemIndex] = {
           ...updatedItems[existingItemIndex],
@@ -61,7 +58,6 @@ const reducer = (state: CartState, action: CartAction): CartState => {
           totalPrice: state.totalPrice + (action.payload.price * action.payload.quantity),
         };
       } else {
-        // Add new item
         newState = {
           ...state,
           items: [...state.items, action.payload],
@@ -117,7 +113,6 @@ const reducer = (state: CartState, action: CartAction): CartState => {
       return state;
   }
 
-  // Save to localStorage
   if (typeof window !== "undefined") {
     localStorage.setItem("barwaqo_cart", JSON.stringify(newState));
   }
@@ -127,8 +122,8 @@ const reducer = (state: CartState, action: CartAction): CartState => {
 
 interface CartContextType extends CartState {
   addItem: (item: CartItem) => void;
-  removeItem: (id: number) => void;
-  updateQuantity: (id: number, quantity: number) => void;
+  removeItem: (id: string) => void;
+  updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
 }
 
@@ -137,7 +132,6 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, initialState, getInitialState);
 
-  // Load cart from localStorage on initial render
   useEffect(() => {
     const savedCart = localStorage.getItem("barwaqo_cart");
     if (savedCart) {
@@ -156,12 +150,12 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
   };
 
-  const removeItem = (id: number) => {
+  const removeItem = (id: string) => {
     dispatch({ type: "REMOVE_ITEM", payload: id });
     toast.info("Item removed from cart");
   };
 
-  const updateQuantity = (id: number, quantity: number) => {
+  const updateQuantity = (id: string, quantity: number) => {
     dispatch({ type: "UPDATE_QUANTITY", payload: { id, quantity } });
   };
 

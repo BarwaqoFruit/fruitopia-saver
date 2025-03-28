@@ -60,7 +60,19 @@ const mapDBProductToProduct = (product: ProductDB): Product => ({
   isNew: product.isnew,
   origin: product.origin || undefined,
   tags: product.tags,
-  nutritionalInfo: product.nutritionalinfo as NutritionalInfo,
+  nutritionalInfo: {
+    calories: typeof product.nutritionalinfo === 'object' && product.nutritionalinfo !== null ? 
+      (product.nutritionalinfo as any).calories || "0" : "0",
+    fat: typeof product.nutritionalinfo === 'object' && product.nutritionalinfo !== null ? 
+      (product.nutritionalinfo as any).fat || "0g" : "0g",
+    protein: typeof product.nutritionalinfo === 'object' && product.nutritionalinfo !== null ? 
+      (product.nutritionalinfo as any).protein || "0g" : "0g",
+    carbs: typeof product.nutritionalinfo === 'object' && product.nutritionalinfo !== null ? 
+      (product.nutritionalinfo as any).carbs || "0g" : "0g",
+    vitamins: typeof product.nutritionalinfo === 'object' && product.nutritionalinfo !== null && 
+      Array.isArray((product.nutritionalinfo as any).vitamins) ? 
+      (product.nutritionalinfo as any).vitamins || [] : []
+  },
   storage: product.storage,
   season: product.season,
   created_at: product.created_at

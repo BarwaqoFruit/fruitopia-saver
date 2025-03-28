@@ -29,7 +29,7 @@ const ProductDetail = () => {
   const handleAddToCart = () => {
     if (product) {
       addItem({
-        id: product.id,
+        id: product.id, // This is now a string matching the Product interface
         name: product.name,
         price: product.price,
         image: product.image,
