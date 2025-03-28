@@ -37,9 +37,9 @@ const AdminMenu = () => {
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link to="/admin/users">
+          <Link to="/admin/customers">
             <Users className="h-4 w-4 mr-2" />
-            User Management
+            Customer Management
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>

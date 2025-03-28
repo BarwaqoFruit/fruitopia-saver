@@ -150,9 +150,10 @@ export const updatePaymentStatus = async (orderId: string, status: string) => {
 
 // Function to update payment details
 export const updatePaymentDetails = async (orderId: string, details: PaymentDetails) => {
+  // Convert PaymentDetails to JSON for Supabase
   const { error } = await supabase
     .from('orders')
-    .update({ payment_details: details })
+    .update({ payment_details: details as unknown as Json })
     .eq('id', orderId);
 
   if (error) {

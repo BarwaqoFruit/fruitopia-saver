@@ -342,15 +342,15 @@ const AdminDashboard = () => {
               <Package className="mr-2 h-4 w-4" />
               Orders
             </TabsTrigger>
-            <TabsTrigger value="products" disabled>
+            <TabsTrigger value="products" onClick={() => navigate('/admin/products')}>
               <ShoppingBag className="mr-2 h-4 w-4" />
               Products
             </TabsTrigger>
-            <TabsTrigger value="customers" disabled>
+            <TabsTrigger value="customers" onClick={() => navigate('/admin/customers')}>
               <Users className="mr-2 h-4 w-4" />
               Customers
             </TabsTrigger>
-            <TabsTrigger value="settings" disabled>
+            <TabsTrigger value="settings" onClick={() => navigate('/admin/settings')}>
               <Settings className="mr-2 h-4 w-4" />
               Settings
             </TabsTrigger>
@@ -444,21 +444,30 @@ const AdminDashboard = () => {
           <TabsContent value="products">
             <div className="rounded-md border p-8 text-center">
               <h3 className="text-lg font-medium mb-2">Products Management</h3>
-              <p className="text-muted-foreground mb-4">This feature is coming soon.</p>
+              <p className="text-muted-foreground mb-4">Redirecting to Products Management...</p>
+              <Button onClick={() => navigate('/admin/products')}>
+                Go to Products
+              </Button>
             </div>
           </TabsContent>
           
           <TabsContent value="customers">
             <div className="rounded-md border p-8 text-center">
               <h3 className="text-lg font-medium mb-2">Customer Management</h3>
-              <p className="text-muted-foreground mb-4">This feature is coming soon.</p>
+              <p className="text-muted-foreground mb-4">Redirecting to Customer Management...</p>
+              <Button onClick={() => navigate('/admin/customers')}>
+                Go to Customers
+              </Button>
             </div>
           </TabsContent>
           
           <TabsContent value="settings">
             <div className="rounded-md border p-8 text-center">
               <h3 className="text-lg font-medium mb-2">Settings</h3>
-              <p className="text-muted-foreground mb-4">This feature is coming soon.</p>
+              <p className="text-muted-foreground mb-4">Redirecting to Settings...</p>
+              <Button onClick={() => navigate('/admin/settings')}>
+                Go to Settings
+              </Button>
             </div>
           </TabsContent>
         </Tabs>
