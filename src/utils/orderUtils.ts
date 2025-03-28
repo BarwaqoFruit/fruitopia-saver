@@ -3,6 +3,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { CartItem } from "@/contexts/CartContext";
 import { Json } from "@/integrations/supabase/types";
 
+// Interface for payment details
+export interface PaymentDetails {
+  wafi_number?: string;
+  transaction_id?: string;
+  payment_type?: string;
+}
+
 // Interface for order details
 export interface OrderDetails {
   id?: string;
@@ -18,11 +25,7 @@ export interface OrderDetails {
   total_amount: number;
   items: CartItem[];
   created_at?: string;
-  payment_details?: {
-    wafi_number?: string;
-    transaction_id?: string;
-    payment_type?: string;
-  };
+  payment_details?: PaymentDetails;
 }
 
 // Function to save order to Supabase
@@ -146,7 +149,7 @@ export const updatePaymentStatus = async (orderId: string, status: string) => {
 };
 
 // Function to update payment details
-export const updatePaymentDetails = async (orderId: string, details: any) => {
+export const updatePaymentDetails = async (orderId: string, details: PaymentDetails) => {
   const { error } = await supabase
     .from('orders')
     .update({ payment_details: details })

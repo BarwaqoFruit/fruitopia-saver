@@ -12,13 +12,20 @@ import PageLayout from "@/components/layout/PageLayout";
 import { getOrderById, updateOrderStatus, updatePaymentStatus, updatePaymentDetails } from "@/utils/orderUtils";
 import { toast } from "sonner";
 
+// Define the payment details interface
+interface PaymentDetails {
+  wafi_number?: string;
+  transaction_id?: string;
+  payment_type?: string;
+}
+
 const OrderDetail = () => {
   const { id } = useParams<{ id: string }>();
   const [order, setOrder] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
-  const [paymentDetails, setPaymentDetails] = useState({
+  const [paymentDetails, setPaymentDetails] = useState<PaymentDetails>({
     wafi_number: "",
     transaction_id: "",
     payment_type: ""
@@ -38,10 +45,11 @@ const OrderDetail = () => {
       
       // Initialize payment details if they exist
       if (data.payment_details) {
+        const details = data.payment_details as PaymentDetails;
         setPaymentDetails({
-          wafi_number: data.payment_details.wafi_number || "",
-          transaction_id: data.payment_details.transaction_id || "",
-          payment_type: data.payment_details.payment_type || ""
+          wafi_number: details.wafi_number || "",
+          transaction_id: details.transaction_id || "",
+          payment_type: details.payment_type || ""
         });
       }
     } catch (error) {
@@ -368,22 +376,22 @@ const OrderDetail = () => {
                       <h4 className="text-sm font-medium mb-2">Payment Details</h4>
                       {order.payment_details ? (
                         <div className="space-y-1 text-sm">
-                          {order.payment_details.wafi_number && (
+                          {(order.payment_details as PaymentDetails).wafi_number && (
                             <div className="flex justify-between">
                               <span className="text-muted-foreground">Wafi Number:</span>
-                              <span>{order.payment_details.wafi_number}</span>
+                              <span>{(order.payment_details as PaymentDetails).wafi_number}</span>
                             </div>
                           )}
-                          {order.payment_details.transaction_id && (
+                          {(order.payment_details as PaymentDetails).transaction_id && (
                             <div className="flex justify-between">
                               <span className="text-muted-foreground">Transaction ID:</span>
-                              <span>{order.payment_details.transaction_id}</span>
+                              <span>{(order.payment_details as PaymentDetails).transaction_id}</span>
                             </div>
                           )}
-                          {order.payment_details.payment_type && (
+                          {(order.payment_details as PaymentDetails).payment_type && (
                             <div className="flex justify-between">
                               <span className="text-muted-foreground">Payment Type:</span>
-                              <span>{order.payment_details.payment_type}</span>
+                              <span>{(order.payment_details as PaymentDetails).payment_type}</span>
                             </div>
                           )}
                         </div>
@@ -436,7 +444,7 @@ const OrderDetail = () => {
             <div className="space-y-2">
               <label className="text-sm font-medium">Wafi Number</label>
               <Input 
-                value={paymentDetails.wafi_number}
+                value={paymentDetails.wafi_number || ""}
                 onChange={(e) => setPaymentDetails({...paymentDetails, wafi_number: e.target.value})}
                 placeholder="Enter wafi number"
               />
@@ -444,7 +452,7 @@ const OrderDetail = () => {
             <div className="space-y-2">
               <label className="text-sm font-medium">Transaction ID</label>
               <Input 
-                value={paymentDetails.transaction_id}
+                value={paymentDetails.transaction_id || ""}
                 onChange={(e) => setPaymentDetails({...paymentDetails, transaction_id: e.target.value})}
                 placeholder="Enter transaction ID"
               />
@@ -452,7 +460,7 @@ const OrderDetail = () => {
             <div className="space-y-2">
               <label className="text-sm font-medium">Payment Type</label>
               <Input 
-                value={paymentDetails.payment_type}
+                value={paymentDetails.payment_type || ""}
                 onChange={(e) => setPaymentDetails({...paymentDetails, payment_type: e.target.value})}
                 placeholder="Enter payment type (e.g., Mobile Money, Card)"
               />
