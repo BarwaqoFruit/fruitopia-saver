@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Link } from "react-router-dom";
-import { Shield, LayoutDashboard, ShoppingBag, Users, Settings } from "lucide-react";
+import { Shield, LayoutDashboard, ShoppingBag, Users, Settings, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -11,8 +11,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useAdminAuth } from "@/contexts/AdminAuthContext";
 
 const AdminMenu = () => {
+  const { signOut } = useAdminAuth();
+  
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -47,6 +50,11 @@ const AdminMenu = () => {
             <Settings className="h-4 w-4 mr-2" />
             Settings
           </Link>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => signOut()}>
+          <LogOut className="h-4 w-4 mr-2" />
+          Sign Out
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
