@@ -19,6 +19,7 @@ export type Database = {
           id: string
           items: Json
           order_status: string
+          payment_details: Json | null
           payment_method: string
           payment_status: string
           region: string
@@ -34,6 +35,7 @@ export type Database = {
           id?: string
           items: Json
           order_status?: string
+          payment_details?: Json | null
           payment_method: string
           payment_status?: string
           region: string
@@ -49,6 +51,7 @@ export type Database = {
           id?: string
           items?: Json
           order_status?: string
+          payment_details?: Json | null
           payment_method?: string
           payment_status?: string
           region?: string
