@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -44,7 +43,8 @@ const productFormSchema = z.object({
   vitamins: z.string().transform(val => val.split(',').map(vitamin => vitamin.trim())),
 });
 
-type ProductFormValues = z.infer<typeof productFormSchema>;
+type ProductFormValues = z.input<typeof productFormSchema>;
+type ProductFormTransformed = z.output<typeof productFormSchema>;
 
 const AddProduct = () => {
   const navigate = useNavigate();
@@ -72,7 +72,7 @@ const AddProduct = () => {
   });
 
   const addProductMutation = useMutation({
-    mutationFn: async (values: ProductFormValues) => {
+    mutationFn: async (values: ProductFormTransformed) => {
       const { data, error } = await supabase.from('products').insert([
         {
           name: values.name,
@@ -83,18 +83,17 @@ const AddProduct = () => {
           isorganic: values.isOrganic,
           isnew: values.isNew,
           origin: values.origin || null,
-          // These are now properly transformed to string arrays by the zod schema
           tags: values.tags,
           nutritionalinfo: {
             calories: values.calories,
             fat: values.fat,
             protein: values.protein,
             carbs: values.carbs,
-            vitamins: values.vitamins, // This is now properly transformed to a string array
+            vitamins: values.vitamins,
           },
           storage: values.storage,
           season: values.season,
-          rating: 5.0, // Default rating for new products
+          rating: 5.0,
         }
       ]).select();
       
@@ -112,7 +111,7 @@ const AddProduct = () => {
   });
 
   const onSubmit = (values: ProductFormValues) => {
-    addProductMutation.mutate(values);
+    addProductMutation.mutate(values as unknown as ProductFormTransformed);
   };
 
   return (
@@ -143,7 +142,6 @@ const AddProduct = () => {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Left Column - Basic Information */}
               <Card className="md:col-span-2">
                 <CardContent className="pt-6">
                   <div className="space-y-6">
@@ -314,7 +312,6 @@ const AddProduct = () => {
                 </CardContent>
               </Card>
 
-              {/* Right Column - Additional Information */}
               <div className="space-y-6">
                 <Card>
                   <CardContent className="pt-6">
