@@ -83,13 +83,14 @@ const AddProduct = () => {
           isorganic: values.isOrganic,
           isnew: values.isNew,
           origin: values.origin || null,
+          // These are now properly transformed to string arrays by the zod schema
           tags: values.tags,
           nutritionalinfo: {
             calories: values.calories,
             fat: values.fat,
             protein: values.protein,
             carbs: values.carbs,
-            vitamins: values.vitamins,
+            vitamins: values.vitamins, // This is now properly transformed to a string array
           },
           storage: values.storage,
           season: values.season,
