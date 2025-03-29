@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Search, ShoppingCart, User, Menu, X, Heart } from "lucide-react";
@@ -7,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
+import BarwaqoLogo from "@/components/logo/BarwaqoLogo";
 
 const NavBar = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -36,10 +36,9 @@ const NavBar = () => {
         <div className="flex items-center justify-between">
           <Link 
             to="/" 
-            className="flex items-center font-serif text-2xl font-medium transition-all duration-300"
+            className="flex items-center transition-all duration-300"
           >
-            <span className="text-gold mr-1">Barwaqo</span>
-            <span>Fruit</span>
+            <BarwaqoLogo className={`h-8 ${scrolled ? 'w-28' : 'w-32'}`} />
           </Link>
 
           {!isMobile && (

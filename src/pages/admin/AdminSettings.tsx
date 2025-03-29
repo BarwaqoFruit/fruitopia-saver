@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import PageLayout from "@/components/layout/PageLayout";
 import { toast } from "sonner";
 
@@ -36,6 +37,29 @@ const emailFormSchema = z.object({
   sendShippingUpdates: z.boolean().default(true),
   sendPromotions: z.boolean().default(false),
   emailFooter: z.string().optional(),
+});
+
+const paymentFormSchema = z.object({
+  enableStripe: z.boolean().default(true),
+  enablePaypal: z.boolean().default(false),
+  enableCashOnDelivery: z.boolean().default(true),
+  testMode: z.boolean().default(true),
+  stripePublishableKey: z.string().optional(),
+  stripeSecretKey: z.string().optional(),
+  paypalClientId: z.string().optional(),
+  paypalClientSecret: z.string().optional(),
+});
+
+const shippingFormSchema = z.object({
+  enableFreeShipping: z.boolean().default(true),
+  freeShippingThreshold: z.coerce.number().min(0),
+  enableLocalPickup: z.boolean().default(true),
+  enableExpressShipping: z.boolean().default(true),
+  baseShippingRate: z.coerce.number().min(0),
+  expressShippingRate: z.coerce.number().min(0),
+  shippingTaxable: z.boolean().default(false),
+  shippingCalculationMethod: z.enum(["flat", "weight", "price"]),
+  shippingAddressPolicy: z.enum(["required", "optional"]),
 });
 
 const AdminSettings = () => {
@@ -62,6 +86,35 @@ const AdminSettings = () => {
     },
   });
 
+  const paymentForm = useForm<z.infer<typeof paymentFormSchema>>({
+    resolver: zodResolver(paymentFormSchema),
+    defaultValues: {
+      enableStripe: true,
+      enablePaypal: false,
+      enableCashOnDelivery: true,
+      testMode: true,
+      stripePublishableKey: "",
+      stripeSecretKey: "",
+      paypalClientId: "",
+      paypalClientSecret: "",
+    },
+  });
+
+  const shippingForm = useForm<z.infer<typeof shippingFormSchema>>({
+    resolver: zodResolver(shippingFormSchema),
+    defaultValues: {
+      enableFreeShipping: true,
+      freeShippingThreshold: 50,
+      enableLocalPickup: true,
+      enableExpressShipping: true,
+      baseShippingRate: 5.99,
+      expressShippingRate: 15.99,
+      shippingTaxable: false,
+      shippingCalculationMethod: "flat",
+      shippingAddressPolicy: "required",
+    },
+  });
+
   // Form submission handlers
   const onGeneralSubmit = (data: z.infer<typeof generalFormSchema>) => {
     console.log("General settings updated:", data);
@@ -71,6 +124,16 @@ const AdminSettings = () => {
   const onEmailSubmit = (data: z.infer<typeof emailFormSchema>) => {
     console.log("Email settings updated:", data);
     toast.success("Email settings updated successfully");
+  };
+
+  const onPaymentSubmit = (data: z.infer<typeof paymentFormSchema>) => {
+    console.log("Payment settings updated:", data);
+    toast.success("Payment settings updated successfully");
+  };
+
+  const onShippingSubmit = (data: z.infer<typeof shippingFormSchema>) => {
+    console.log("Shipping settings updated:", data);
+    toast.success("Shipping settings updated successfully");
   };
 
   return (
@@ -305,9 +368,183 @@ const AdminSettings = () => {
                 <CardDescription>Configure your payment methods and options.</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-12">
-                  <p>Payment settings configuration coming soon.</p>
-                </div>
+                <Form {...paymentForm}>
+                  <form onSubmit={paymentForm.handleSubmit(onPaymentSubmit)} className="space-y-6">
+                    <div className="space-y-4">
+                      <FormField
+                        control={paymentForm.control}
+                        name="enableStripe"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                            <div className="space-y-0.5">
+                              <FormLabel className="text-base">Stripe Payments</FormLabel>
+                              <FormDescription>
+                                Accept credit card payments via Stripe.
+                              </FormDescription>
+                            </div>
+                            <FormControl>
+                              <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+
+                      {paymentForm.watch("enableStripe") && (
+                        <div className="ml-4 pl-4 border-l space-y-4">
+                          <FormField
+                            control={paymentForm.control}
+                            name="stripePublishableKey"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Stripe Publishable Key</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    placeholder="pk_test_..."
+                                    type="password"
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <FormDescription>
+                                  Your Stripe publishable key (starts with pk_).
+                                </FormDescription>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={paymentForm.control}
+                            name="stripeSecretKey"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Stripe Secret Key</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    placeholder="sk_test_..."
+                                    type="password"
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <FormDescription>
+                                  Your Stripe secret key (starts with sk_). This should be kept secure.
+                                </FormDescription>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      )}
+
+                      <FormField
+                        control={paymentForm.control}
+                        name="enablePaypal"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                            <div className="space-y-0.5">
+                              <FormLabel className="text-base">PayPal Payments</FormLabel>
+                              <FormDescription>
+                                Accept payments via PayPal.
+                              </FormDescription>
+                            </div>
+                            <FormControl>
+                              <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+
+                      {paymentForm.watch("enablePaypal") && (
+                        <div className="ml-4 pl-4 border-l space-y-4">
+                          <FormField
+                            control={paymentForm.control}
+                            name="paypalClientId"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>PayPal Client ID</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    placeholder="Your PayPal client ID"
+                                    type="password"
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={paymentForm.control}
+                            name="paypalClientSecret"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>PayPal Client Secret</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    placeholder="Your PayPal client secret"
+                                    type="password"
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      )}
+
+                      <FormField
+                        control={paymentForm.control}
+                        name="enableCashOnDelivery"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                            <div className="space-y-0.5">
+                              <FormLabel className="text-base">Cash on Delivery</FormLabel>
+                              <FormDescription>
+                                Allow customers to pay when their order is delivered.
+                              </FormDescription>
+                            </div>
+                            <FormControl>
+                              <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={paymentForm.control}
+                        name="testMode"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                            <div className="space-y-0.5">
+                              <FormLabel className="text-base">Test Mode</FormLabel>
+                              <FormDescription>
+                                Process payments in test mode (no real charges).
+                              </FormDescription>
+                            </div>
+                            <FormControl>
+                              <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    <Button type="submit">Save Payment Settings</Button>
+                  </form>
+                </Form>
               </CardContent>
             </Card>
           </TabsContent>
@@ -320,9 +557,213 @@ const AdminSettings = () => {
                 <CardDescription>Configure your shipping methods and rates.</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-12">
-                  <p>Shipping settings configuration coming soon.</p>
-                </div>
+                <Form {...shippingForm}>
+                  <form onSubmit={shippingForm.handleSubmit(onShippingSubmit)} className="space-y-6">
+                    <div className="space-y-4">
+                      <FormField
+                        control={shippingForm.control}
+                        name="shippingCalculationMethod"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Shipping Calculation Method</FormLabel>
+                            <Select
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                            >
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select a calculation method" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="flat">Flat Rate</SelectItem>
+                                <SelectItem value="weight">Weight Based</SelectItem>
+                                <SelectItem value="price">Price Based</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormDescription>
+                              How shipping costs will be calculated.
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={shippingForm.control}
+                        name="baseShippingRate"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Base Shipping Rate ($)</FormLabel>
+                            <FormControl>
+                              <Input type="number" step="0.01" {...field} />
+                            </FormControl>
+                            <FormDescription>
+                              Standard shipping rate applied to all orders.
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={shippingForm.control}
+                        name="enableFreeShipping"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                            <div className="space-y-0.5">
+                              <FormLabel className="text-base">Free Shipping</FormLabel>
+                              <FormDescription>
+                                Offer free shipping on orders above a certain amount.
+                              </FormDescription>
+                            </div>
+                            <FormControl>
+                              <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+
+                      {shippingForm.watch("enableFreeShipping") && (
+                        <div className="ml-4 pl-4 border-l">
+                          <FormField
+                            control={shippingForm.control}
+                            name="freeShippingThreshold"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Free Shipping Threshold ($)</FormLabel>
+                                <FormControl>
+                                  <Input type="number" step="0.01" {...field} />
+                                </FormControl>
+                                <FormDescription>
+                                  Orders above this amount qualify for free shipping.
+                                </FormDescription>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      )}
+
+                      <FormField
+                        control={shippingForm.control}
+                        name="enableExpressShipping"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                            <div className="space-y-0.5">
+                              <FormLabel className="text-base">Express Shipping</FormLabel>
+                              <FormDescription>
+                                Offer express shipping option.
+                              </FormDescription>
+                            </div>
+                            <FormControl>
+                              <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+
+                      {shippingForm.watch("enableExpressShipping") && (
+                        <div className="ml-4 pl-4 border-l">
+                          <FormField
+                            control={shippingForm.control}
+                            name="expressShippingRate"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Express Shipping Rate ($)</FormLabel>
+                                <FormControl>
+                                  <Input type="number" step="0.01" {...field} />
+                                </FormControl>
+                                <FormDescription>
+                                  Rate for express (1-2 day) shipping.
+                                </FormDescription>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      )}
+
+                      <FormField
+                        control={shippingForm.control}
+                        name="enableLocalPickup"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                            <div className="space-y-0.5">
+                              <FormLabel className="text-base">Local Pickup</FormLabel>
+                              <FormDescription>
+                                Allow customers to pick up orders from your location.
+                              </FormDescription>
+                            </div>
+                            <FormControl>
+                              <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={shippingForm.control}
+                        name="shippingTaxable"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                            <div className="space-y-0.5">
+                              <FormLabel className="text-base">Taxable Shipping</FormLabel>
+                              <FormDescription>
+                                Apply tax to shipping costs.
+                              </FormDescription>
+                            </div>
+                            <FormControl>
+                              <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={shippingForm.control}
+                        name="shippingAddressPolicy"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Shipping Address Policy</FormLabel>
+                            <Select
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                            >
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select a policy" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                <SelectItem value="required">Required</SelectItem>
+                                <SelectItem value="optional">Optional</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <FormDescription>
+                              Whether a shipping address is required at checkout.
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    <Button type="submit">Save Shipping Settings</Button>
+                  </form>
+                </Form>
               </CardContent>
             </Card>
           </TabsContent>
