@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Json } from "@/integrations/supabase/types";
 
@@ -139,4 +138,27 @@ export const fetchFeaturedProducts = async (): Promise<Product[]> => {
 
 export const getUniqueCategories = (products: Product[]): string[] => {
   return Array.from(new Set(products.map(product => product.category)));
+};
+
+// New function to delete a product
+export const deleteProduct = async (id: string): Promise<{ success: boolean; error?: string }> => {
+  try {
+    const { error } = await supabase
+      .from('products')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error('Error deleting product:', error);
+      return { success: false, error: error.message };
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting product:', error);
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Unknown error occurred' 
+    };
+  }
 };

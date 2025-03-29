@@ -1,18 +1,34 @@
 
 import React, { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { Link } from "react-router-dom";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Link, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
-import { Star, Edit, Trash2, Plus } from "lucide-react";
-import { fetchProducts } from "@/utils/productUtils";
+import { Star, Edit, Trash2, Plus, AlertTriangle } from "lucide-react";
+import { fetchProducts, deleteProduct } from "@/utils/productUtils";
 import PageLayout from "@/components/layout/PageLayout";
+import { toast } from "sonner";
+import { 
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+} from "@/components/ui/dialog";
 
 const ProductManagement = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const productsPerPage = 8;
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  
+  // Delete confirmation dialog state
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deletingProductId, setDeletingProductId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const { data: products = [], isLoading, error } = useQuery({
     queryKey: ['adminProducts'],
@@ -26,6 +42,49 @@ const ProductManagement = () => {
   const totalPages = Math.ceil(products.length / productsPerPage);
 
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+  
+  // Open delete confirmation dialog
+  const handleDeleteClick = (productId: string) => {
+    setDeletingProductId(productId);
+    setDeleteDialogOpen(true);
+  };
+  
+  // Handle confirm delete
+  const handleConfirmDelete = async () => {
+    if (!deletingProductId) return;
+    
+    setIsDeleting(true);
+    
+    try {
+      const result = await deleteProduct(deletingProductId);
+      
+      if (result.success) {
+        toast.success("Product deleted successfully");
+        // Invalidate and refetch the products data
+        queryClient.invalidateQueries({ queryKey: ['adminProducts'] });
+      } else {
+        toast.error(`Failed to delete product: ${result.error}`);
+      }
+    } catch (error) {
+      console.error("Error deleting product:", error);
+      toast.error("An unexpected error occurred while deleting the product");
+    } finally {
+      setIsDeleting(false);
+      setDeleteDialogOpen(false);
+      setDeletingProductId(null);
+    }
+  };
+  
+  // Handle cancel delete
+  const handleCancelDelete = () => {
+    setDeleteDialogOpen(false);
+    setDeletingProductId(null);
+  };
+  
+  // Handle edit button click
+  const handleEditClick = (productId: string) => {
+    navigate(`/admin/products/edit/${productId}`);
+  };
 
   return (
     <PageLayout>
@@ -89,12 +148,18 @@ const ProductManagement = () => {
                     </div>
                   </CardContent>
                   <CardFooter className="p-4 flex justify-between">
-                    <Button variant="outline" size="sm" asChild>
-                      <Link to={`/admin/products/edit/${product.id}`}>
-                        <Edit size={14} className="mr-1" /> Edit
-                      </Link>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => handleEditClick(product.id)}
+                    >
+                      <Edit size={14} className="mr-1" /> Edit
                     </Button>
-                    <Button variant="destructive" size="sm">
+                    <Button 
+                      variant="destructive" 
+                      size="sm" 
+                      onClick={() => handleDeleteClick(product.id)}
+                    >
                       <Trash2 size={14} className="mr-1" /> Delete
                     </Button>
                   </CardFooter>
@@ -136,6 +201,37 @@ const ProductManagement = () => {
           </>
         )}
       </div>
+      
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm Deletion</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this product? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex items-center justify-center my-4 text-amber-500">
+            <AlertTriangle size={64} />
+          </div>
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={handleCancelDelete}
+              disabled={isDeleting}
+            >
+              Cancel
+            </Button>
+            <Button 
+              variant="destructive" 
+              onClick={handleConfirmDelete}
+              disabled={isDeleting}
+            >
+              {isDeleting ? "Deleting..." : "Delete Product"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </PageLayout>
   );
 };
