@@ -1,5 +1,4 @@
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm, Controller } from "react-hook-form";
@@ -86,39 +85,41 @@ const EditProduct = () => {
     },
   });
 
-  // Fetch product details - fixed the onSuccess callback using options
-  const { isLoading, error } = useQuery({
+  // Fetch product details - fixed to use the new React Query structure
+  const { data: product, isLoading, error } = useQuery({
     queryKey: ["product", id],
     queryFn: () => fetchProductById(id!),
-    onSuccess: (product) => {
-      if (product) {
-        // Reset form with product data
-        form.reset({
-          name: product.name,
-          description: product.description,
-          price: product.price,
-          category: product.category,
-          image: product.image,
-          rating: product.rating,
-          isOrganic: product.isOrganic,
-          isNew: product.isNew,
-          origin: product.origin || "",
-          tags: product.tags,
-          nutritionalInfo: {
-            calories: product.nutritionalInfo.calories,
-            fat: product.nutritionalInfo.fat,
-            protein: product.nutritionalInfo.protein,
-            carbs: product.nutritionalInfo.carbs,
-            vitamins: product.nutritionalInfo.vitamins,
-          },
-          storage: product.storage,
-          season: product.season,
-        });
-      }
-    }
+    enabled: !!id,
   });
 
-  // Update product mutation - fixed to ensure nutritionalInfo has all required fields
+  // Update form when product data is loaded
+  useEffect(() => {
+    if (product) {
+      form.reset({
+        name: product.name,
+        description: product.description,
+        price: product.price,
+        category: product.category,
+        image: product.image,
+        rating: product.rating,
+        isOrganic: product.isOrganic,
+        isNew: product.isNew,
+        origin: product.origin || "",
+        tags: product.tags,
+        nutritionalInfo: {
+          calories: product.nutritionalInfo.calories,
+          fat: product.nutritionalInfo.fat,
+          protein: product.nutritionalInfo.protein,
+          carbs: product.nutritionalInfo.carbs,
+          vitamins: product.nutritionalInfo.vitamins,
+        },
+        storage: product.storage,
+        season: product.season,
+      });
+    }
+  }, [product, form]);
+
+  // Update product mutation - ensures nutritionalInfo has all required fields
   const updateMutation = useMutation({
     mutationFn: (data: ProductFormValues) => {
       if (!id) throw new Error("Product ID is required");
@@ -609,7 +610,7 @@ const EditProduct = () => {
                             <Star
                               key={i}
                               size={16}
-                              className={i < form.watch("rating") ? "fill-gold text-gold" : "text-muted"}
+                              className={i < form.watch("rating") ? "fill-yellow-400 text-yellow-400" : "text-muted"}
                             />
                           ))}
                         </div>
