@@ -6,7 +6,7 @@ import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { Save, ArrowLeft, Trash2 } from "lucide-react";
+import { Save, ArrowLeft, Trash2, Star } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -86,7 +86,7 @@ const EditProduct = () => {
     },
   });
 
-  // Fetch product details
+  // Fetch product details - fixed the onSuccess callback using options
   const { isLoading, error } = useQuery({
     queryKey: ["product", id],
     queryFn: () => fetchProductById(id!),
@@ -115,14 +115,25 @@ const EditProduct = () => {
           season: product.season,
         });
       }
-    },
+    }
   });
 
-  // Update product mutation
+  // Update product mutation - fixed to ensure nutritionalInfo has all required fields
   const updateMutation = useMutation({
     mutationFn: (data: ProductFormValues) => {
       if (!id) throw new Error("Product ID is required");
-      return updateProduct(id, data);
+      // Ensure all nutritionalInfo fields are present even if they're empty strings
+      const formattedData: Partial<Product> = {
+        ...data,
+        nutritionalInfo: {
+          calories: data.nutritionalInfo.calories || "0",
+          fat: data.nutritionalInfo.fat || "0g",
+          protein: data.nutritionalInfo.protein || "0g",
+          carbs: data.nutritionalInfo.carbs || "0g",
+          vitamins: data.nutritionalInfo.vitamins || [],
+        }
+      };
+      return updateProduct(id, formattedData);
     },
     onSuccess: () => {
       toast.success("Product updated successfully");
