@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { Json } from "@/integrations/supabase/types";
 
@@ -77,6 +78,29 @@ const mapDBProductToProduct = (product: ProductDB): Product => ({
   created_at: product.created_at
 });
 
+// Function to map Product to DB format
+const mapProductToDBProduct = (product: Partial<Product>): Partial<ProductDB> => ({
+  name: product.name,
+  description: product.description,
+  price: product.price,
+  category: product.category,
+  image: product.image,
+  rating: product.rating,
+  isorganic: product.isOrganic,
+  isnew: product.isNew,
+  origin: product.origin || null,
+  tags: product.tags,
+  nutritionalinfo: product.nutritionalInfo ? {
+    calories: product.nutritionalInfo.calories,
+    fat: product.nutritionalInfo.fat,
+    protein: product.nutritionalInfo.protein,
+    carbs: product.nutritionalInfo.carbs,
+    vitamins: product.nutritionalInfo.vitamins
+  } : undefined,
+  storage: product.storage,
+  season: product.season
+});
+
 export const fetchProducts = async (): Promise<Product[]> => {
   const { data, error } = await supabase
     .from('products')
@@ -140,7 +164,35 @@ export const getUniqueCategories = (products: Product[]): string[] => {
   return Array.from(new Set(products.map(product => product.category)));
 };
 
-// New function to delete a product
+// Update product function
+export const updateProduct = async (
+  id: string, 
+  productData: Partial<Product>
+): Promise<{ success: boolean; error?: string }> => {
+  try {
+    const mappedProduct = mapProductToDBProduct(productData);
+    
+    const { error } = await supabase
+      .from('products')
+      .update(mappedProduct)
+      .eq('id', id);
+
+    if (error) {
+      console.error('Error updating product:', error);
+      return { success: false, error: error.message };
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating product:', error);
+    return { 
+      success: false, 
+      error: error instanceof Error ? error.message : 'Unknown error occurred' 
+    };
+  }
+};
+
+// Delete product function
 export const deleteProduct = async (id: string): Promise<{ success: boolean; error?: string }> => {
   try {
     const { error } = await supabase

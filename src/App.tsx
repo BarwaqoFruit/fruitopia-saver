@@ -20,6 +20,7 @@ import ProductManagement from "./pages/admin/ProductManagement";
 import CustomerManagement from "./pages/admin/CustomerManagement";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AddProduct from "./pages/admin/AddProduct";
+import EditProduct from "./pages/admin/EditProduct";
 import { CartProvider } from "./contexts/CartContext";
 import { WishlistProvider } from "./contexts/WishlistContext";
 import { AdminAuthProvider } from "./contexts/AdminAuthContext";
@@ -68,6 +69,7 @@ function App() {
                     <Route path="/admin/orders/:id" element={<OrderDetail />} />
                     <Route path="/admin/products" element={<ProductManagement />} />
                     <Route path="/admin/products/add" element={<AddProduct />} />
+                    <Route path="/admin/products/edit/:id" element={<EditProduct />} />
                     <Route path="/admin/customers" element={<CustomerManagement />} />
                     <Route path="/admin/settings" element={<AdminSettings />} />
                   </Route>
