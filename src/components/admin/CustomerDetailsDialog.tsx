@@ -14,10 +14,26 @@ import { supabase } from "@/integrations/supabase/client";
 import { Mail, Phone, MapPin, Calendar, DollarSign, Package, ClipboardList } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
+// Define proper types for Customer without modifying the types.ts file
+export interface CustomerDetails {
+  profileId?: string;
+  name: string;
+  email: string;
+  phone: string;
+  address?: string;
+  city?: string;
+  region?: string;
+  status: 'active' | 'inactive';
+  notes?: string;
+  orders: number;
+  totalSpent: number;
+  lastOrderDate: string;
+}
+
 interface CustomerDetailsDialogProps {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
-  customer: any;
+  customer: CustomerDetails | null;
 }
 
 const CustomerDetailsDialog = ({ isOpen, setIsOpen, customer }: CustomerDetailsDialogProps) => {

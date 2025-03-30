@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,6 +18,7 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { CustomerDetails } from "./CustomerDetailsDialog";
 
 // Define schema for customer form validation
 const customerSchema = z.object({
@@ -35,7 +35,7 @@ const customerSchema = z.object({
 type CustomerFormValues = z.infer<typeof customerSchema>;
 
 interface CustomerEditFormProps {
-  customer: any;
+  customer: CustomerDetails | null;
   onClose: () => void;
 }
 
@@ -102,7 +102,7 @@ const CustomerEditForm = ({ customer, onClose }: CustomerEditFormProps) => {
           notes: values.notes || null,
           status: values.status
         })
-        .eq('id', customer.profileId)
+        .eq('id', customer?.profileId)
         .select()
         .single();
       
