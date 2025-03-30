@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -10,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getOrders } from "@/utils/orderUtils";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { Badge } from "@/components/ui/badge";
 import { 
   Dialog, 
   DialogContent, 
@@ -47,7 +47,6 @@ const CustomerManagement = () => {
     }
   });
 
-  // Extract unique customers from orders
   const uniqueCustomers = React.useMemo(() => {
     const customersMap = new Map();
     
@@ -73,7 +72,6 @@ const CustomerManagement = () => {
       }
     });
     
-    // Enrich with profile data if available
     const enrichedCustomers = Array.from(customersMap.values()).map(customer => {
       const profile = profiles.find(p => p.email === customer.email);
       return {
@@ -92,7 +90,6 @@ const CustomerManagement = () => {
     return enrichedCustomers;
   }, [orders, profiles]);
   
-  // Filter customers based on search query
   const filteredCustomers = React.useMemo(() => {
     if (!searchQuery.trim()) return uniqueCustomers;
     
@@ -162,12 +159,10 @@ const CustomerManagement = () => {
   };
 
   const handleCreateProfile = (customer) => {
-    // Pre-fill form with available data from orders
     setSelectedCustomer({
       email: customer.email,
       name: customer.name,
       phone: customer.phone,
-      // Leave other fields empty for admin to fill in
       address: '',
       city: '',
       region: '',
@@ -281,14 +276,12 @@ const CustomerManagement = () => {
         </Tabs>
       </div>
       
-      {/* Customer Details Dialog */}
       <CustomerDetailsDialog 
         isOpen={isDetailsOpen}
         setIsOpen={setIsDetailsOpen}
         customer={selectedCustomer}
       />
       
-      {/* Customer Edit Dialog */}
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
         <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
