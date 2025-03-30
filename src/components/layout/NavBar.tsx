@@ -141,7 +141,6 @@ const NavBar = () => {
           </div>
         </div>
 
-        {/* Mobile menu */}
         {isMobile && mobileMenuOpen && (
           <div className="mt-4 animate-fade-in py-4 border-t border-border/50">
             <div className="relative mb-4">
