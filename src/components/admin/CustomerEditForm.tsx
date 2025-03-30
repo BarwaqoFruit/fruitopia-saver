@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,6 +20,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { CustomerDetails } from "./CustomerDetailsDialog";
+import { Badge } from "@/components/ui/badge";
+import { UserCheck, UserX } from "lucide-react";
 
 // Define schema for customer form validation
 const customerSchema = z.object({
@@ -189,8 +192,20 @@ const CustomerEditForm = ({ customer, onClose }: CustomerEditFormProps) => {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="active">Active</SelectItem>
-                    <SelectItem value="inactive">Inactive</SelectItem>
+                    <SelectItem value="active" className="flex items-center">
+                      <div className="flex items-center">
+                        <UserCheck className="h-4 w-4 mr-2 text-green-500" />
+                        <span>Active</span>
+                        <Badge variant="status" className="ml-2 bg-green-100 text-green-800">Active</Badge>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="inactive" className="flex items-center">
+                      <div className="flex items-center">
+                        <UserX className="h-4 w-4 mr-2 text-red-500" />
+                        <span>Inactive</span>
+                        <Badge variant="status" className="ml-2 bg-red-100 text-red-800">Inactive</Badge>
+                      </div>
+                    </SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
