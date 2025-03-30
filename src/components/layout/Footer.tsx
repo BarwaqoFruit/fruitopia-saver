@@ -14,8 +14,23 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 const Footer = () => {
+  const [email, setEmail] = React.useState("");
+  
+  const handleSubscribe = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (email.trim() && email.includes('@')) {
+      toast.success("Thank you for subscribing!", {
+        description: "You've been added to our newsletter."
+      });
+      setEmail("");
+    } else {
+      toast.error("Please enter a valid email address");
+    }
+  };
+  
   return (
     <footer className="bg-primary text-primary-foreground">
       <div className="container mx-auto px-4">
@@ -26,16 +41,19 @@ const Footer = () => {
             <p className="text-primary-foreground/80 mb-8">
               Subscribe to receive updates on new arrivals, special offers, and seasonal delicacies.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto">
+            <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto">
               <Input 
                 type="email" 
                 placeholder="Your Email Address" 
                 className="bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/50 focus:border-gold"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
               />
-              <Button className="bg-gold hover:bg-gold/90 text-white">
+              <Button type="submit" className="bg-gold hover:bg-gold/90 text-white">
                 Subscribe
               </Button>
-            </div>
+            </form>
           </div>
         </div>
         
@@ -47,13 +65,13 @@ const Footer = () => {
               Purveyors of the world's finest fruits, hand-selected and delivered to elevate your culinary experience.
             </p>
             <div className="flex space-x-4">
-              <a href="#" className="text-primary-foreground/80 hover:text-gold transition-colors">
+              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="text-primary-foreground/80 hover:text-gold transition-colors">
                 <Facebook size={20} />
               </a>
-              <a href="#" className="text-primary-foreground/80 hover:text-gold transition-colors">
+              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="text-primary-foreground/80 hover:text-gold transition-colors">
                 <Instagram size={20} />
               </a>
-              <a href="#" className="text-primary-foreground/80 hover:text-gold transition-colors">
+              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="text-primary-foreground/80 hover:text-gold transition-colors">
                 <Twitter size={20} />
               </a>
             </div>
@@ -126,15 +144,17 @@ const Footer = () => {
             <ul className="space-y-4">
               <li className="flex items-start">
                 <MapPin className="mr-3 h-5 w-5 text-gold flex-shrink-0" />
-                <span className="text-primary-foreground/80">123 Luxury Lane, Fruitville, CA 94103</span>
+                <span className="text-primary-foreground/80">Makka Al-Mukarama Road, Mogadishu, Somalia</span>
               </li>
               <li className="flex items-start">
                 <Phone className="mr-3 h-5 w-5 text-gold flex-shrink-0" />
-                <span className="text-primary-foreground/80">+1 (555) 123-4567</span>
+                <span className="text-primary-foreground/80">+252 61 227 9276</span>
               </li>
               <li className="flex items-start">
                 <Mail className="mr-3 h-5 w-5 text-gold flex-shrink-0" />
-                <span className="text-primary-foreground/80">concierge@barwaqofruit.com</span>
+                <a href="mailto:info@barwaqofruit.com" className="text-primary-foreground/80 hover:text-gold transition-colors">
+                  info@barwaqofruit.com
+                </a>
               </li>
             </ul>
           </div>
