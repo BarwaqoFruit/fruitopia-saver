@@ -1,15 +1,19 @@
 
 import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Clock, ShoppingBag, ArrowRight, MapPin, Phone } from "lucide-react";
+import { Clock, ShoppingBag, ArrowRight, MapPin, Phone, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import PageLayout from "@/components/layout/PageLayout";
 import { getOrderById } from "@/utils/orderUtils";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const CheckoutSuccess = () => {
   const [orderId, setOrderId] = useState<string | null>(null);
   const [orderDetails, setOrderDetails] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [hasProfile, setHasProfile] = useState<boolean | null>(null);
+  const [creatingProfile, setCreatingProfile] = useState(false);
   const location = useLocation();
   
   useEffect(() => {
@@ -25,6 +29,11 @@ const CheckoutSuccess = () => {
           setIsLoading(true);
           const details = await getOrderById(id);
           setOrderDetails(details);
+          
+          // Check if customer already has a profile
+          if (details?.customer_email) {
+            checkCustomerProfile(details.customer_email);
+          }
         } catch (error) {
           console.error("Error fetching order details:", error);
         } finally {
@@ -37,6 +46,53 @@ const CheckoutSuccess = () => {
       setIsLoading(false);
     }
   }, [location]);
+  
+  const checkCustomerProfile = async (email: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('customer_profiles')
+        .select('id')
+        .eq('email', email)
+        .maybeSingle();
+      
+      if (error) throw error;
+      setHasProfile(!!data);
+    } catch (error) {
+      console.error("Error checking customer profile:", error);
+      // Default to false if error occurs
+      setHasProfile(false);
+    }
+  };
+
+  const createCustomerProfile = async () => {
+    if (!orderDetails) return;
+    
+    try {
+      setCreatingProfile(true);
+      
+      const { data, error } = await supabase
+        .from('customer_profiles')
+        .insert([{
+          name: orderDetails.customer_name,
+          email: orderDetails.customer_email,
+          phone: orderDetails.customer_phone,
+          address: orderDetails.shipping_address,
+          city: orderDetails.city,
+          region: orderDetails.region,
+          status: 'active'
+        }])
+        .select();
+      
+      if (error) throw error;
+      
+      toast.success("Customer profile created successfully");
+      setHasProfile(true);
+    } catch (error: any) {
+      toast.error(`Failed to create profile: ${error.message}`);
+    } finally {
+      setCreatingProfile(false);
+    }
+  };
 
   // Generate a unique Somali-style order reference
   const generateOrderReference = () => {
@@ -131,6 +187,39 @@ const CheckoutSuccess = () => {
               </div>
             </div>
           </div>
+          
+          {hasProfile === false && !creatingProfile && (
+            <div className="bg-amber-50 p-6 rounded-lg mb-8 text-center border border-amber-200">
+              <h3 className="font-medium mb-2 text-amber-800">Create Your Customer Profile</h3>
+              <p className="text-amber-700 mb-4 text-sm">
+                Create a customer profile to make your next checkout faster and track your orders more easily.
+              </p>
+              <Button 
+                onClick={createCustomerProfile}
+                className="bg-amber-600 hover:bg-amber-700"
+              >
+                <UserPlus className="mr-2 h-4 w-4" /> Create Profile
+              </Button>
+            </div>
+          )}
+          
+          {hasProfile === true && (
+            <div className="bg-green-50 p-6 rounded-lg mb-8 text-center border border-green-200">
+              <h3 className="font-medium mb-2 text-green-800">Customer Profile Active</h3>
+              <p className="text-green-700 mb-4 text-sm">
+                Your customer profile has been created. Future checkouts will be faster!
+              </p>
+            </div>
+          )}
+          
+          {creatingProfile && (
+            <div className="bg-blue-50 p-6 rounded-lg mb-8 text-center border border-blue-200">
+              <div className="flex justify-center mb-3">
+                <div className="animate-spin h-6 w-6 border-4 border-blue-600 border-t-transparent rounded-full"></div>
+              </div>
+              <p className="text-blue-700 text-sm">Creating your customer profile...</p>
+            </div>
+          )}
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button asChild variant="outline" className="flex-1">
