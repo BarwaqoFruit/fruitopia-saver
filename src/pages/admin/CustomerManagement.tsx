@@ -367,16 +367,16 @@ const CustomerManagement = () => {
                 </TableCell>
                 <TableCell>
                   {customer.hasProfile ? (
-                    <Badge variant="outline" className="bg-green-100 text-green-800 hover:bg-green-100">
+                    <Badge variant="status" className="bg-green-100 text-green-800 hover:bg-green-100">
                       Profile Created
                     </Badge>
                   ) : (
-                    <Badge variant="outline" className="bg-amber-100 text-amber-800 hover:bg-amber-100">
+                    <Badge variant="status" className="bg-amber-100 text-amber-800 hover:bg-amber-100">
                       No Profile
                     </Badge>
                   )}
                   {customer.status === 'inactive' && customer.hasProfile && (
-                    <Badge variant="outline" className="bg-red-100 text-red-800 hover:bg-red-100 ml-2">
+                    <Badge variant="status" className="bg-red-100 text-red-800 hover:bg-red-100 ml-2">
                       Inactive
                     </Badge>
                   )}

@@ -1,4 +1,3 @@
-
 import React from "react";
 import { 
   Dialog, 
@@ -13,6 +12,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Mail, Phone, MapPin, Calendar, DollarSign, Package, ClipboardList } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 // Define proper types for Customer without modifying the types.ts file
 export interface CustomerDetails {
@@ -100,7 +100,7 @@ const CustomerDetailsDialog = ({ isOpen, setIsOpen, customer }: CustomerDetailsD
               <div className="flex items-center gap-2">
                 <span className="font-bold text-xl">{customer.name}</span>
                 {customer.status === 'inactive' && (
-                  <span className="text-xs px-2 py-1 rounded bg-red-100 text-red-800">Inactive</span>
+                  <Badge variant="status" className="text-xs px-2 py-1 rounded bg-red-100 text-red-800">Inactive</Badge>
                 )}
               </div>
               
@@ -177,12 +177,12 @@ const CustomerDetailsDialog = ({ isOpen, setIsOpen, customer }: CustomerDetailsD
                           <p className="text-xs text-muted-foreground font-mono">{order.id}</p>
                         </div>
                         <div className="flex gap-2">
-                          <span className={`text-xs px-2 py-1 rounded ${getStatusColor(order.order_status)}`}>
+                          <Badge variant="status" className={`text-xs px-2 py-1 rounded ${getStatusColor(order.order_status)}`}>
                             {order.order_status}
-                          </span>
-                          <span className={`text-xs px-2 py-1 rounded ${getStatusColor(order.payment_status)}`}>
+                          </Badge>
+                          <Badge variant="status" className={`text-xs px-2 py-1 rounded ${getStatusColor(order.payment_status)}`}>
                             {order.payment_status}
-                          </span>
+                          </Badge>
                         </div>
                       </div>
                       <div className="flex justify-between items-center border-t pt-2 mt-2">
