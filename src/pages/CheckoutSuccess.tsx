@@ -71,6 +71,7 @@ const CheckoutSuccess = () => {
     try {
       setCreatingProfile(true);
       
+      // Log the customer data we're about to insert
       console.log("Creating profile with data:", {
         name: orderDetails.customer_name,
         email: orderDetails.customer_email,
@@ -80,9 +81,10 @@ const CheckoutSuccess = () => {
         region: orderDetails.region,
       });
       
+      // Use the supabase client's insert method as anon user
       const { data, error } = await supabase
         .from('customer_profiles')
-        .insert([{
+        .insert({
           name: orderDetails.customer_name,
           email: orderDetails.customer_email,
           phone: orderDetails.customer_phone,
@@ -90,7 +92,7 @@ const CheckoutSuccess = () => {
           city: orderDetails.city,
           region: orderDetails.region,
           status: 'active'
-        }])
+        })
         .select();
       
       if (error) {
@@ -98,7 +100,7 @@ const CheckoutSuccess = () => {
         throw error;
       }
       
-      console.log("Profile created:", data);
+      console.log("Profile created successfully:", data);
       toast.success("Customer profile created successfully");
       setHasProfile(true);
     } catch (error: any) {

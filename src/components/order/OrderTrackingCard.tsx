@@ -14,7 +14,7 @@ interface OrderTrackingCardProps {
 const OrderTrackingCard = ({ orderReference, orderStatus, createdAt }: OrderTrackingCardProps) => {
   // Calculate the step based on order status
   const getStepFromStatus = (status: string): number => {
-    switch (status) {
+    switch (status.toLowerCase()) {
       case 'processing':
         return 1;
       case 'shipped':
@@ -41,6 +41,8 @@ const OrderTrackingCard = ({ orderReference, orderStatus, createdAt }: OrderTrac
       })
     : 'Processing';
 
+  console.log("Order status:", orderStatus, "Step:", step);
+
   return (
     <Card className="w-full mb-6">
       <CardHeader className="bg-primary/5 pb-2">
@@ -61,7 +63,7 @@ const OrderTrackingCard = ({ orderReference, orderStatus, createdAt }: OrderTrac
           <div className="absolute top-5 left-0 right-0 h-1 bg-muted">
             <div 
               className={`h-full bg-primary transition-all duration-500 ${
-                step === 0 ? 'bg-destructive w-0' : `w-${step}/4`
+                step === 0 ? 'bg-destructive' : ''
               }`}
               style={{ width: step === 0 ? '0%' : `${(step / 4) * 100}%` }}
             ></div>
@@ -72,7 +74,7 @@ const OrderTrackingCard = ({ orderReference, orderStatus, createdAt }: OrderTrac
             <div className="flex flex-col items-center">
               <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
                 step >= 1 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
-              } ${orderStatus === 'cancelled' && 'bg-destructive text-destructive-foreground'}`}>
+              } ${orderStatus.toLowerCase() === 'cancelled' && 'bg-destructive text-destructive-foreground'}`}>
                 <ShoppingBag className="h-5 w-5" />
               </div>
               <p className="text-sm mt-2 text-center">Order Placed</p>
@@ -111,15 +113,15 @@ const OrderTrackingCard = ({ orderReference, orderStatus, createdAt }: OrderTrac
           <p className="text-sm">
             <span className="font-medium">Current Status: </span>
             <span className={`${
-              orderStatus === 'cancelled' 
+              orderStatus.toLowerCase() === 'cancelled' 
                 ? 'text-destructive font-medium' 
                 : 'text-primary font-medium'
             }`}>
-              {orderStatus === 'processing' && 'Order Processing'}
-              {orderStatus === 'shipped' && 'Order Shipped'}
-              {orderStatus === 'out_for_delivery' && 'Out for Delivery'}
-              {orderStatus === 'completed' && 'Order Delivered'}
-              {orderStatus === 'cancelled' && 'Order Cancelled'}
+              {orderStatus.toLowerCase() === 'processing' && 'Order Processing'}
+              {orderStatus.toLowerCase() === 'shipped' && 'Order Shipped'}
+              {orderStatus.toLowerCase() === 'out_for_delivery' && 'Out for Delivery'}
+              {orderStatus.toLowerCase() === 'completed' && 'Order Delivered'}
+              {orderStatus.toLowerCase() === 'cancelled' && 'Order Cancelled'}
             </span>
           </p>
         </div>
