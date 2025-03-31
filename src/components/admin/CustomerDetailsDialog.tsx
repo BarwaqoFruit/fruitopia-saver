@@ -56,6 +56,8 @@ const CustomerDetailsDialog = ({ isOpen, setIsOpen, customer }: CustomerDetailsD
   });
 
   const formatDate = (dateString: string) => {
+    if (!dateString) return 'N/A';
+    
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
@@ -136,7 +138,7 @@ const CustomerDetailsDialog = ({ isOpen, setIsOpen, customer }: CustomerDetailsD
                   <p className="text-muted-foreground text-sm">Total Orders</p>
                   <p className="text-lg font-medium flex items-center">
                     <Package className="h-4 w-4 mr-1 text-muted-foreground" />
-                    {customer.orders}
+                    {customer.orders || 0}
                   </p>
                 </div>
                 <div>
