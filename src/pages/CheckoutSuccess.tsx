@@ -70,6 +70,15 @@ const CheckoutSuccess = () => {
     try {
       setCreatingProfile(true);
       
+      console.log("Creating profile with data:", {
+        name: orderDetails.customer_name,
+        email: orderDetails.customer_email,
+        phone: orderDetails.customer_phone,
+        address: orderDetails.shipping_address,
+        city: orderDetails.city,
+        region: orderDetails.region,
+      });
+      
       const { data, error } = await supabase
         .from('customer_profiles')
         .insert([{
@@ -83,11 +92,16 @@ const CheckoutSuccess = () => {
         }])
         .select();
       
-      if (error) throw error;
+      if (error) {
+        console.error("Supabase error creating profile:", error);
+        throw error;
+      }
       
+      console.log("Profile created:", data);
       toast.success("Customer profile created successfully");
       setHasProfile(true);
     } catch (error: any) {
+      console.error("Error creating profile:", error);
       toast.error(`Failed to create profile: ${error.message}`);
     } finally {
       setCreatingProfile(false);
