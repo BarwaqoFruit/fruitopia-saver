@@ -130,6 +130,22 @@ const CustomerEditForm = ({ customer, onClose }: CustomerEditFormProps) => {
     }
   };
 
+  // Helper function to render status badge
+  const renderStatusBadge = (status: 'active' | 'inactive') => {
+    if (status === 'active') {
+      return (
+        <Badge variant="status" className="bg-green-100 text-green-800">
+          Active
+        </Badge>
+      );
+    }
+    return (
+      <Badge variant="status" className="bg-red-100 text-red-800">
+        Inactive
+      </Badge>
+    );
+  };
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -188,7 +204,18 @@ const CustomerEditForm = ({ customer, onClose }: CustomerEditFormProps) => {
                 >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select status" />
+                      <SelectValue placeholder="Select status">
+                        {field.value && (
+                          <div className="flex items-center gap-2">
+                            {field.value === 'active' ? 
+                              <UserCheck className="h-4 w-4 text-green-500" /> : 
+                              <UserX className="h-4 w-4 text-red-500" />
+                            }
+                            <span className="capitalize">{field.value}</span>
+                            {renderStatusBadge(field.value as 'active' | 'inactive')}
+                          </div>
+                        )}
+                      </SelectValue>
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
