@@ -1,3 +1,4 @@
+
 import React from "react";
 import { 
   Dialog, 
@@ -80,6 +81,14 @@ const CustomerDetailsDialog = ({ isOpen, setIsOpen, customer }: CustomerDetailsD
     }
   };
 
+  // Safe number formatting function to handle undefined/null values
+  const formatCurrency = (value: number | undefined | null) => {
+    if (value === undefined || value === null) {
+      return "$0.00";
+    }
+    return `$${value.toFixed(2)}`;
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
@@ -134,7 +143,7 @@ const CustomerDetailsDialog = ({ isOpen, setIsOpen, customer }: CustomerDetailsD
                   <p className="text-muted-foreground text-sm">Total Spent</p>
                   <p className="text-lg font-medium flex items-center">
                     <DollarSign className="h-4 w-4 mr-1 text-muted-foreground" />
-                    ${customer.totalSpent.toFixed(2)}
+                    {formatCurrency(customer.totalSpent)}
                   </p>
                 </div>
                 <div>
@@ -188,9 +197,9 @@ const CustomerDetailsDialog = ({ isOpen, setIsOpen, customer }: CustomerDetailsD
                       <div className="flex justify-between items-center border-t pt-2 mt-2">
                         <div className="flex items-center">
                           <ClipboardList className="h-4 w-4 mr-2 text-muted-foreground" />
-                          <span className="text-sm">{(order.items as any[]).length} items</span>
+                          <span className="text-sm">{Array.isArray(order.items) ? order.items.length : 0} items</span>
                         </div>
-                        <p className="font-medium">${Number(order.total_amount).toFixed(2)}</p>
+                        <p className="font-medium">{formatCurrency(order.total_amount)}</p>
                       </div>
                     </div>
                   ))}
