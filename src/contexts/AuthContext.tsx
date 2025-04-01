@@ -85,6 +85,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signUp = async (email: string, password: string, userData?: any) => {
     try {
       setIsLoading(true);
+      
+      // First check if the network is available
+      try {
+        await fetch('https://www.google.com', { 
+          mode: 'no-cors',
+          cache: 'no-store',
+          method: 'HEAD',
+          // Short timeout to quickly detect network issues
+          signal: AbortSignal.timeout(3000)
+        });
+      } catch (error) {
+        // Network is unavailable
+        toast.error("Network error: Please check your internet connection and try again.");
+        throw new Error("Network unavailable");
+      }
+      
       const { error } = await supabase.auth.signUp({
         email,
         password,
@@ -99,7 +115,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       toast.success("Signup successful! Please check your email for verification.");
     } catch (error: any) {
-      toast.error(`Signup failed: ${error.message}`);
+      if (error.message === "Network unavailable") {
+        // Already handled above
+      } else if (error.message?.includes("fetch")) {
+        toast.error("Network error: Couldn't connect to authentication server. Please try again later.");
+      } else {
+        toast.error(`Signup failed: ${error.message}`);
+      }
       throw error;
     } finally {
       setIsLoading(false);
@@ -109,6 +131,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signIn = async (email: string, password: string) => {
     try {
       setIsLoading(true);
+      
+      // Check network connectivity first
+      try {
+        await fetch('https://www.google.com', { 
+          mode: 'no-cors',
+          cache: 'no-store',
+          method: 'HEAD',
+          signal: AbortSignal.timeout(3000)
+        });
+      } catch (error) {
+        toast.error("Network error: Please check your internet connection and try again.");
+        throw new Error("Network unavailable");
+      }
+      
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -120,7 +156,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       toast.success("Logged in successfully!");
     } catch (error: any) {
-      toast.error(`Login failed: ${error.message}`);
+      if (error.message === "Network unavailable") {
+        // Already handled above
+      } else if (error.message?.includes("fetch")) {
+        toast.error("Network error: Couldn't connect to authentication server. Please try again later.");
+      } else {
+        toast.error(`Login failed: ${error.message}`);
+      }
       throw error;
     } finally {
       setIsLoading(false);

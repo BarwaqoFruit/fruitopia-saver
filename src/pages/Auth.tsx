@@ -18,7 +18,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContext";
 import PageLayout from "@/components/layout/PageLayout";
-import { User, LockKeyhole, UserPlus } from "lucide-react";
+import { User, LockKeyhole, UserPlus, AlertCircle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -42,6 +43,7 @@ type SignupFormValues = z.infer<typeof signupSchema>;
 const Auth = () => {
   const [activeTab, setActiveTab] = useState("login");
   const { signIn, signUp, user, isLoading } = useAuth();
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   
   // Redirect if user is already logged in
@@ -71,22 +73,32 @@ const Auth = () => {
   });
 
   const onLoginSubmit = async (values: LoginFormValues) => {
+    setError(null);
     try {
       await signIn(values.email, values.password);
-    } catch (error) {
-      // Error is already handled in signIn function
+    } catch (error: any) {
+      if (error.message?.includes("fetch") || error.message === "Network unavailable") {
+        setError("Network error: Please check your internet connection and try again.");
+      } else {
+        setError(error.message);
+      }
     }
   };
 
   const onSignupSubmit = async (values: SignupFormValues) => {
+    setError(null);
     try {
       await signUp(values.email, values.password, {
         customer_name: values.name,
         phone: values.phone
       });
       setActiveTab("login");
-    } catch (error) {
-      // Error is already handled in signUp function
+    } catch (error: any) {
+      if (error.message?.includes("fetch") || error.message === "Network unavailable") {
+        setError("Network error: Please check your internet connection and try again.");
+      } else {
+        setError(error.message);
+      }
     }
   };
 
@@ -94,6 +106,13 @@ const Auth = () => {
     <PageLayout>
       <div className="container mx-auto px-4 py-16 mt-8">
         <div className="max-w-md mx-auto">
+          {error && (
+            <Alert variant="destructive" className="mb-6">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+          
           <Tabs defaultValue={activeTab} onValueChange={setActiveTab}>
             <TabsList className="grid w-full grid-cols-2 mb-8">
               <TabsTrigger value="login">Login</TabsTrigger>
