@@ -88,6 +88,7 @@ export type Database = {
           region: string
           shipping_address: string
           total_amount: number
+          user_id: string | null
         }
         Insert: {
           city: string
@@ -104,6 +105,7 @@ export type Database = {
           region: string
           shipping_address: string
           total_amount: number
+          user_id?: string | null
         }
         Update: {
           city?: string
@@ -120,6 +122,7 @@ export type Database = {
           region?: string
           shipping_address?: string
           total_amount?: number
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -174,6 +177,39 @@ export type Database = {
           season?: string
           storage?: string
           tags?: string[]
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          address: string | null
+          city: string | null
+          created_at: string
+          customer_name: string | null
+          id: string
+          phone: string | null
+          region: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          city?: string | null
+          created_at?: string
+          customer_name?: string | null
+          id: string
+          phone?: string | null
+          region?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          city?: string | null
+          created_at?: string
+          customer_name?: string | null
+          id?: string
+          phone?: string | null
+          region?: string | null
+          updated_at?: string
         }
         Relationships: []
       }

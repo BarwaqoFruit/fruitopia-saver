@@ -26,6 +26,7 @@ export interface OrderDetails {
   items: CartItem[];
   created_at?: string;
   payment_details?: PaymentDetails;
+  user_id?: string;
 }
 
 // Function to save order to Supabase
@@ -44,6 +45,7 @@ export const saveOrder = async (orderDetails: OrderDetails) => {
     total_amount: orderDetails.total_amount,
     items: orderDetails.items as unknown as Json,
     payment_details: orderDetails.payment_details as unknown as Json,
+    user_id: orderDetails.user_id || null
   };
 
   const { data, error } = await supabase
@@ -106,6 +108,22 @@ export const filterOrdersByStatus = async (status: string) => {
   return data || [];
 };
 
+// Function to get orders by user ID
+export const getOrdersByUserId = async (userId: string) => {
+  const { data, error } = await supabase
+    .from('orders')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching user orders:', error);
+    throw new Error('Failed to fetch user orders');
+  }
+
+  return data || [];
+};
+
 // Function to get order by ID
 export const getOrderById = async (orderId: string) => {
   const { data, error } = await supabase
@@ -159,5 +177,18 @@ export const updatePaymentDetails = async (orderId: string, details: PaymentDeta
   if (error) {
     console.error('Error updating payment details:', error);
     throw new Error('Failed to update payment details');
+  }
+};
+
+// Function to link order to user
+export const linkOrderToUser = async (orderId: string, userId: string) => {
+  const { error } = await supabase
+    .from('orders')
+    .update({ user_id: userId })
+    .eq('id', orderId);
+
+  if (error) {
+    console.error('Error linking order to user:', error);
+    throw new Error('Failed to link order to user');
   }
 };

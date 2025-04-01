@@ -4,10 +4,11 @@ import { Link, useLocation } from "react-router-dom";
 import { Clock, ShoppingBag, ArrowRight, MapPin, Phone, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import PageLayout from "@/components/layout/PageLayout";
-import { getOrderById } from "@/utils/orderUtils";
+import { getOrderById, updateOrderStatus } from "@/utils/orderUtils";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import OrderTrackingCard from "@/components/order/OrderTrackingCard";
+import { useAuth } from "@/contexts/AuthContext";
 
 const CheckoutSuccess = () => {
   const [orderId, setOrderId] = useState<string | null>(null);
@@ -15,7 +16,9 @@ const CheckoutSuccess = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [hasProfile, setHasProfile] = useState<boolean | null>(null);
   const [creatingProfile, setCreatingProfile] = useState(false);
+  const [linkingOrder, setLinkingOrder] = useState(false);
   const location = useLocation();
+  const { user } = useAuth();
   
   useEffect(() => {
     // Check if order ID is in the URL query params
@@ -30,6 +33,11 @@ const CheckoutSuccess = () => {
           setIsLoading(true);
           const details = await getOrderById(id);
           setOrderDetails(details);
+          
+          // If user is logged in and order user_id is not set, link order to user
+          if (user && details && !details.user_id) {
+            linkOrderToUser(id, user.id);
+          }
           
           // Check if customer already has a profile
           if (details?.customer_email) {
@@ -46,7 +54,25 @@ const CheckoutSuccess = () => {
     } else {
       setIsLoading(false);
     }
-  }, [location]);
+  }, [location, user]);
+  
+  const linkOrderToUser = async (orderId: string, userId: string) => {
+    try {
+      setLinkingOrder(true);
+      const { error } = await supabase
+        .from('orders')
+        .update({ user_id: userId })
+        .eq('id', orderId);
+      
+      if (error) throw error;
+      
+      console.log("Order linked to user account");
+    } catch (error) {
+      console.error("Error linking order to user:", error);
+    } finally {
+      setLinkingOrder(false);
+    }
+  };
   
   const checkCustomerProfile = async (email: string) => {
     try {
@@ -198,7 +224,7 @@ const CheckoutSuccess = () => {
             </div>
           </div>
           
-          {hasProfile === false && !creatingProfile && (
+          {!user && hasProfile === false && !creatingProfile && (
             <div className="bg-amber-50 p-6 rounded-lg mb-8 text-center border border-amber-200">
               <h3 className="font-medium mb-2 text-amber-800">Create Your Customer Profile</h3>
               <p className="text-amber-700 mb-4 text-sm">
@@ -213,16 +239,37 @@ const CheckoutSuccess = () => {
             </div>
           )}
           
-          {hasProfile === true && (
-            <div className="bg-green-50 p-6 rounded-lg mb-8 text-center border border-green-200">
-              <h3 className="font-medium mb-2 text-green-800">Customer Profile Active</h3>
-              <p className="text-green-700 mb-4 text-sm">
-                Your customer profile has been created. Future checkouts will be faster!
+          {!user && hasProfile === true && (
+            <div className="bg-blue-50 p-6 rounded-lg mb-8 text-center border border-blue-200">
+              <h3 className="font-medium mb-2 text-blue-800">Sign In To Track Orders</h3>
+              <p className="text-blue-700 mb-4 text-sm">
+                Your profile has been created. Sign in to track your orders and manage your account.
               </p>
+              <Button 
+                onClick={() => window.location.href = '/auth'}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                Sign In
+              </Button>
             </div>
           )}
           
-          {creatingProfile && (
+          {user && (
+            <div className="bg-green-50 p-6 rounded-lg mb-8 text-center border border-green-200">
+              <h3 className="font-medium mb-2 text-green-800">Order Linked to Your Account</h3>
+              <p className="text-green-700 mb-4 text-sm">
+                Your order has been linked to your account. You can track it in your order history.
+              </p>
+              <Button 
+                onClick={() => window.location.href = '/account?tab=orders'}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                View Order History
+              </Button>
+            </div>
+          )}
+          
+          {hasProfile === false && creatingProfile && (
             <div className="bg-blue-50 p-6 rounded-lg mb-8 text-center border border-blue-200">
               <div className="flex justify-center mb-3">
                 <div className="animate-spin h-6 w-6 border-4 border-blue-600 border-t-transparent rounded-full"></div>
