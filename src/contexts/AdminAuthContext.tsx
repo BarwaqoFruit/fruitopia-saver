@@ -48,8 +48,9 @@ export const AdminAuthProvider = ({ children }: { children: React.ReactNode }) =
       
       if (session?.user) {
         checkAdminStatus(session.user.id);
+      } else {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     });
 
     return () => {
@@ -68,11 +69,9 @@ export const AdminAuthProvider = ({ children }: { children: React.ReactNode }) =
       if (error) {
         console.error('Error checking admin status:', error);
         setIsAdmin(false);
-        setIsLoading(false);
-        return;
+      } else {
+        setIsAdmin(!!data);
       }
-      
-      setIsAdmin(!!data);
       setIsLoading(false);
     } catch (error) {
       console.error('Error in checkAdminStatus:', error);
@@ -84,6 +83,20 @@ export const AdminAuthProvider = ({ children }: { children: React.ReactNode }) =
   const signIn = async (email: string, password: string) => {
     try {
       setIsLoading(true);
+      
+      // Check network connectivity first
+      try {
+        await fetch('https://www.google.com', { 
+          mode: 'no-cors',
+          cache: 'no-store',
+          method: 'HEAD',
+          signal: AbortSignal.timeout(3000)
+        });
+      } catch (error) {
+        toast.error("Network error: Please check your internet connection and try again.");
+        throw new Error("Network unavailable");
+      }
+      
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -93,38 +106,34 @@ export const AdminAuthProvider = ({ children }: { children: React.ReactNode }) =
       
       // Check if the user is an admin after sign in
       if (data.user) {
-        const isUserAdmin = await checkAdminStatusAndReturn(data.user.id);
-        if (!isUserAdmin) {
+        const { data: adminData, error: adminError } = await supabase
+          .from('admins')
+          .select('*')
+          .eq('user_id', data.user.id)
+          .single();
+          
+        if (adminError || !adminData) {
           await supabase.auth.signOut();
           throw new Error("Not authorized as admin");
         }
-        toast.success("Signed in successfully");
+        
+        setIsAdmin(true);
+        toast.success("Signed in successfully as admin");
         navigate("/admin");
       }
     } catch (error: any) {
-      toast.error(error.message || "Failed to sign in");
+      if (error.message === "Network unavailable") {
+        // Already handled above
+      } else if (error.message?.includes("fetch")) {
+        toast.error("Network error: Couldn't connect to authentication server. Please try again later.");
+      } else if (error.message === "Not authorized as admin") {
+        toast.error("You are not authorized as an admin");
+      } else {
+        toast.error(error.message || "Failed to sign in");
+      }
       throw error;
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const checkAdminStatusAndReturn = async (userId: string): Promise<boolean> => {
-    try {
-      const { data, error } = await supabase
-        .from('admins')
-        .select('*')
-        .eq('user_id', userId)
-        .single();
-      
-      if (error || !data) {
-        return false;
-      }
-      
-      return true;
-    } catch (error) {
-      console.error('Error in checkAdminStatusAndReturn:', error);
-      return false;
     }
   };
 
