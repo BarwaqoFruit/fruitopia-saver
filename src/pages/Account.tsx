@@ -64,6 +64,11 @@ const Account = () => {
     });
   };
 
+  // Handle View Details button click
+  const handleViewDetails = (orderId: string) => {
+    setActiveTab(`order-${orderId}`);
+  };
+
   if (!user) {
     return (
       <PageLayout>
@@ -93,7 +98,7 @@ const Account = () => {
             </Button>
           </div>
 
-          <Tabs defaultValue={activeTab} onValueChange={setActiveTab}>
+          <Tabs defaultValue={activeTab} onValueChange={setActiveTab} value={activeTab}>
             <TabsList className="mb-8">
               <TabsTrigger value="profile">
                 <User className="mr-2 h-4 w-4" /> Profile
@@ -165,7 +170,7 @@ const Account = () => {
                                 </TableCell>
                                 <TableCell className="text-right">
                                   <Button
-                                    onClick={() => setActiveTab(`order-${order.id}`)}
+                                    onClick={() => handleViewDetails(order.id)}
                                     variant="ghost"
                                     size="sm"
                                   >
