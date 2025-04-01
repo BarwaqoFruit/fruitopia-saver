@@ -153,19 +153,10 @@ const ProfileForm = () => {
             )}
           />
           
-          <FormField
-            control={form.control}
-            name="email"
-            render={() => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input value={user?.email || ""} disabled />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <div className="space-y-2">
+            <FormLabel>Email</FormLabel>
+            <Input value={user?.email || ""} disabled />
+          </div>
         </div>
         
         <Button type="submit">

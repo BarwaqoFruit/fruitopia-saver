@@ -1,10 +1,9 @@
-
 import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Clock, ShoppingBag, ArrowRight, MapPin, Phone, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import PageLayout from "@/components/layout/PageLayout";
-import { getOrderById, updateOrderStatus } from "@/utils/orderUtils";
+import { getOrderById } from "@/utils/orderUtils";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import OrderTrackingCard from "@/components/order/OrderTrackingCard";
@@ -34,9 +33,9 @@ const CheckoutSuccess = () => {
           const details = await getOrderById(id);
           setOrderDetails(details);
           
-          // If user is logged in and order user_id is not set, link order to user
+          // Check if order has user_id and user is logged in
           if (user && details && !details.user_id) {
-            linkOrderToUser(id, user.id);
+            await linkOrderToUser(id, user.id);
           }
           
           // Check if customer already has a profile
@@ -59,6 +58,7 @@ const CheckoutSuccess = () => {
   const linkOrderToUser = async (orderId: string, userId: string) => {
     try {
       setLinkingOrder(true);
+      // Use the SQL-updated orders table with user_id column
       const { error } = await supabase
         .from('orders')
         .update({ user_id: userId })

@@ -59,6 +59,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const fetchProfile = async (userId: string) => {
     try {
+      // Use public.profiles which was created in the SQL migration
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
