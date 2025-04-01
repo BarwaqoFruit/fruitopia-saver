@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Search, ShoppingCart, User, Menu, X, Heart, LogOut } from "lucide-react";
+import { Search, ShoppingCart, User, Menu, X, Heart, LogOut, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -166,6 +167,14 @@ const NavBar = () => {
               </Link>
             )}
 
+            {/* Admin Login Link */}
+            <Link to="/admin/login">
+              <Button variant="ghost" size="icon" className="text-foreground hover:text-gold">
+                <Shield className="h-5 w-5" />
+                <span className="sr-only">Admin Login</span>
+              </Button>
+            </Link>
+
             {isMobile && (
               <Button 
                 variant="ghost" 
@@ -247,6 +256,17 @@ const NavBar = () => {
                       Sign In / Register
                     </Link>
                   )}
+                </li>
+                {/* Admin Login Link for Mobile */}
+                <li>
+                  <Link 
+                    to="/admin/login" 
+                    className={`block text-foreground hover:text-gold transition-colors ${
+                      location.pathname === '/admin/login' ? 'text-gold font-medium' : ''
+                    }`}
+                  >
+                    <Shield className="h-4 w-4 inline mr-2" /> Admin Login
+                  </Link>
                 </li>
               </ul>
             </nav>
