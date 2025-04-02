@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 import PageLayout from "@/components/layout/PageLayout";
-import { Search, Filter, Fruit } from "lucide-react";
+import { Search, Filter, Apple } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -85,7 +85,7 @@ const FruitFinder = () => {
           </div>
           
           <div className="text-center py-16 bg-secondary/50 rounded-lg">
-            <Fruit className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
+            <Apple className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
             <h2 className="font-serif text-2xl mb-4">Fruit finder coming soon!</h2>
             <p className="text-muted-foreground max-w-md mx-auto mb-8">
               We're working on enhancing your shopping experience. Use our shop page to browse our collection in the meantime.
