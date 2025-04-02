@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -29,6 +28,10 @@ import AdminRouteGuard from "./components/admin/AdminRouteGuard";
 import AdminLogin from "./pages/admin/AdminLogin";
 import Auth from "./pages/Auth";
 import Account from "./pages/Account";
+import Seasonal from "./pages/Seasonal";
+import FruitFinder from "./pages/FruitFinder";
+import About from "./pages/About";
+import Contact from "./pages/Contact";
 
 function App() {
   // Create a client inside the function component
@@ -57,11 +60,13 @@ function App() {
                     <Route path="/account" element={<Account />} />
                     <Route path="/wishlist" element={<Wishlist />} />
                     
-                    {/* Placeholder routes */}
-                    <Route path="/fruit-finder" element={<Index />} />
-                    <Route path="/about" element={<Index />} />
-                    <Route path="/seasonal" element={<Index />} />
-                    <Route path="/contact" element={<Index />} />
+                    {/* Navigation menu routes - now with actual components */}
+                    <Route path="/seasonal" element={<Seasonal />} />
+                    <Route path="/fruit-finder" element={<FruitFinder />} />
+                    <Route path="/about" element={<About />} />
+                    <Route path="/contact" element={<Contact />} />
+                    
+                    {/* Other static pages */}
                     <Route path="/faq" element={<Index />} />
                     <Route path="/shipping" element={<Index />} />
                     <Route path="/returns" element={<Index />} />
